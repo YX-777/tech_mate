@@ -13,6 +13,7 @@ import {
   getMetaMemoryRepository,
   getStatsService,
 } from "@tech-mate/database";
+import { getReviewRecommendations, formatReviewBlock } from "./review-recommender";
 
 export interface SkillGraphNode {
   module: string;
@@ -214,7 +215,7 @@ export class MetaMemoryAggregator {
     if (!meta) {
       // 如果没有元记忆，先聚合
       const data = await this.aggregate(userId);
-      return this.formatSummary(data);
+      return this.appendReview(userId, this.formatSummary(data));
     }
 
     const data: MetaMemoryData = {
@@ -229,7 +230,21 @@ export class MetaMemoryAggregator {
       averageAccuracy: meta.averageAccuracy,
     };
 
-    return this.formatSummary(data);
+    return this.appendReview(userId, this.formatSummary(data));
+  }
+
+  /**
+   * 在元记忆摘要尾部追加"建议复习"块（艾宾浩斯遗忘曲线驱动）。
+   * best-effort：复习推荐失败不影响画像注入。
+   */
+  private async appendReview(userId: string, base: string): Promise<string> {
+    try {
+      const block = formatReviewBlock(await getReviewRecommendations(userId));
+      return block ? `${base}\n\n${block}` : base;
+    } catch (e) {
+      console.warn("[Meta] 复习建议生成失败，跳过", e);
+      return base;
+    }
   }
 
   /**

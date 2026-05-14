@@ -4,6 +4,7 @@ import { ConfigProvider, App as AntdApp } from "antd";
 import zhCN from "antd/locale/zh_CN";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { antdTheme } from "@/config/theme";
+import PageviewTracker from "@/components/PageviewTracker";
 import "../styles/globals.css";
 
 // AntdRegistry：把 antd v6 的 CSS-in-JS 样式收集到 SSR HTML head，
@@ -18,7 +19,10 @@ export default function RootLayout({
       <body>
         <AntdRegistry>
           <ConfigProvider theme={antdTheme} locale={zhCN}>
-            <AntdApp>{children}</AntdApp>
+            <AntdApp>
+              <PageviewTracker />
+              {children}
+            </AntdApp>
           </ConfigProvider>
         </AntdRegistry>
       </body>

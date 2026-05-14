@@ -22,9 +22,20 @@ export {
 export {
   ShortMemoryDecayCalculator,
   getShortMemoryDecayCalculator,
+  ebbinghausRetention,
   type ShortMemory,
   type DecayResult,
 } from "./short";
+
+// 模块复习推荐（艾宾浩斯遗忘曲线，与短期记忆衰减同一条曲线）
+export {
+  getReviewRecommendations,
+  scoreModulesForReview,
+  halfLifeForAccuracy,
+  formatReviewBlock,
+  type ModuleForReview,
+  type ReviewItem,
+} from "./review-recommender";
 
 // 短期记忆强化
 export {
@@ -37,6 +48,8 @@ export {
 export {
   LongMemoryArchiver,
   getLongMemoryArchiver,
+  nextWeight,
+  RETRIEVAL_BOOST,
   type LongMemoryMetadata,
   type ArchiveResult,
 } from "./long";

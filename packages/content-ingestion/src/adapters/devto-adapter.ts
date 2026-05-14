@@ -13,7 +13,15 @@ import { Article, FetchOptions, IContentAdapter } from "../types";
  */
 
 // AI 主题前置（前几个 tag 会拉更多文章），保证 ai/agent/llm/langchain 类目占比
-const TAGS = ["ai", "llm", "agent", "langchain", "rag", "machinelearning", "openai", "javascript", "react", "typescript", "webdev", "node"];
+const TAGS = [
+  // AI / LLM 核心
+  "ai", "llm", "agent", "langchain", "rag", "machinelearning", "openai",
+  // 前端核心
+  "javascript", "react", "typescript", "webdev", "node",
+  // Round-2 扩展 tag
+  "nextjs", "vuejs", "tutorial", "programming", "devops",
+  "css", "performance", "testing", "architecture",
+];
 const BASE = "https://dev.to";
 
 interface DevtoListItem {

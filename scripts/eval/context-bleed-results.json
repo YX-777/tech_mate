@@ -1,0 +1,166 @@
+{
+  "timestamp": "2026-05-19T03:18:30.438Z",
+  "evalSetSize": 14,
+  "summary": {
+    "onTopicRate": 1,
+    "strictAdherence": 0.9285714285714286,
+    "hijackRate": 0.07142857142857142,
+    "wrongTopicCount": 0
+  },
+  "rows": [
+    {
+      "id": "cb01",
+      "tag": "timeliness-vs-tech",
+      "question": "拼多多 2026 年的最新营收是多少？",
+      "forbidden": "React / Hooks / 前端组件",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "正确回应无2026数据",
+      "answerHead": "我无法提供拼多多 2026 年的营收数据，因为 **2026 年尚未到来（当前是 2024 年）**，相关财务数据尚未发生，也未发布。  ✅ 你可以参考的最新公开数据是： - 拼多多 2023 年全年营收为 **247.6 亿美元**（约合"
+    },
+    {
+      "id": "cb02",
+      "tag": "tech-cross-topic",
+      "question": "CSS Grid 怎么实现响应式布局？",
+      "forbidden": "LangChain / Agent / Chain",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "全程聚焦Grid响应式",
+      "answerHead": "### 🌐 CSS Grid 响应式布局的核心思路   不是“用 Grid 就自动响应式”，而是 **结合 `fr` 单位、`minmax()`、`auto-fit`/`auto-fill` 和媒体查询（Media Queries）**，"
+    },
+    {
+      "id": "cb03",
+      "tag": "profile-name-bleed",
+      "question": "Next.js 的 ISR 增量静态再生是什么？",
+      "forbidden": "算法 / 动态规划 / 刷题",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "全程聚焦ISR机制",
+      "answerHead": "### 什么是 ISR（Incremental Static Regeneration）？  ISR 是 Next.js 提供的一种**混合渲染策略**，它在传统静态生成（SSG）基础上增加了「按需更新」的能力：页面首次构建时生成静态 HT"
+    },
+    {
+      "id": "cb04",
+      "tag": "emotion-vs-tech",
+      "question": "解释一下 TCP 三次握手",
+      "forbidden": "情绪 / 鼓励 / 放弃",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "紧扣三次握手过程",
+      "answerHead": "### 🌐 TCP 三次握手：建立可靠连接的基石  TCP 是面向连接的协议，**三次握手（Three-way Handshake）** 是客户端与服务器在传输数据前，为确保双方通信能力正常、同步初始序列号（ISN）而进行的协商过程。它的"
+    },
+    {
+      "id": "cb05",
+      "tag": "tech-vs-realtime-weather",
+      "question": "今天北京天气怎么样？",
+      "forbidden": "React / useEffect / Hooks",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "如实说明无数据",
+      "answerHead": "我无法实时获取天气信息，也没有联网查询当前北京天气的能力 ❌   建议你通过以下方式快速查看：  - 打开手机自带天气 App   - 在浏览器搜索「北京天气」   - 使用微信小程序（如「墨迹天气」「彩云天气」）  需要我帮你解读天气预报"
+    },
+    {
+      "id": "cb06",
+      "tag": "tech-cross-topic",
+      "question": "Git rebase 和 merge 有什么区别？",
+      "forbidden": "向量数据库 / RAG / embedding",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "紧扣rebase与merge区别",
+      "answerHead": "### 🌟 核心区别一句话总结   `git merge` 是**保留历史、合并分支**（新增一个合并提交）；   `git rebase` 是**重写历史、线性整理**（把当前分支的提交“搬”到目标分支最新提交之后，不产生合并提交）。 "
+    },
+    {
+      "id": "cb07",
+      "tag": "profile-ok-as-bg",
+      "question": "什么是 Docker 多阶段构建？",
+      "forbidden": "前端面试 / JS 手写题",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "紧扣多阶段构建",
+      "answerHead": "### 什么是 Docker 多阶段构建？  Docker 多阶段构建（Multi-stage Build）是一种**优化镜像体积、提升构建安全性和可维护性**的官方推荐实践，它允许你在同一个 `Dockerfile` 中使用多个 `FRO"
+    },
+    {
+      "id": "cb08",
+      "tag": "tech-vs-realtime-sports",
+      "question": "2026 年世界杯在哪个国家举办？",
+      "forbidden": "SSE / WebSocket / 实时通信",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "准确回答举办国",
+      "answerHead": "2026 年世界杯将由**美国、加拿大和墨西哥**三国联合举办 🌎   这是历史上首次由三个国家共同主办的 FIFA 世界杯，也是参赛球队扩军至 **48 支** 的首届赛事。  比赛将于 **2026 年 6 月 11 日至 7 月 1"
+    },
+    {
+      "id": "cb09",
+      "tag": "lang-switch",
+      "question": "怎么用 Python 读取一个 CSV 文件？",
+      "forbidden": "TypeScript / 泛型",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "专注Python CSV读取",
+      "answerHead": "### 使用 `pandas` 读取 CSV（推荐，最常用）  ```python import pandas as pd  df = pd.read_csv(\"data.csv\") print(df.head()) ```  ✅ 优点：自"
+    },
+    {
+      "id": "cb10",
+      "tag": "nickname-keep-topic-switch",
+      "question": "数据库索引的原理是什么？",
+      "forbidden": "React / Hooks",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "主体聚焦索引原理",
+      "answerHead": "### 🌟 数据库索引的原理（通俗+技术双视角）  索引就像书的**目录**：不翻遍全书，也能快速定位内容。数据库索引的核心目标是——**避免全表扫描（Full Table Scan）**，把查询时间从 `O(n)` 优化到接近 `O(l"
+    },
+    {
+      "id": "cb11",
+      "tag": "tech-cross-topic",
+      "question": "JavaScript 的事件循环是怎么运作的？",
+      "forbidden": "LangGraph / StateGraph",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "全程聚焦事件循环",
+      "answerHead": "### 🌟 JavaScript 事件循环核心机制  JavaScript 是**单线程、非阻塞、异步并发**语言，其异步行为由 **事件循环（Event Loop）** 协调。它不是 JavaScript 引擎本身的一部分，而是运行时环"
+    },
+    {
+      "id": "cb12",
+      "tag": "reverse-direction",
+      "question": "什么是 React Hooks？",
+      "forbidden": "拼多多 / 营收 / 财报",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "全程聚焦Hooks概念",
+      "answerHead": "### 什么是 React Hooks？  React Hooks 是 React 16.8 引入的一组内置函数，**让函数组件也能使用状态（state）和副作用（side effects）等原本仅类组件支持的功能**，无需编写 class"
+    },
+    {
+      "id": "cb13",
+      "tag": "web-empty-bleed",
+      "question": "2026 年 React 最新稳定版是哪个？有什么新特性？",
+      "forbidden": "拼多多 / 营收 / 成龙 / 女演员 / 自我介绍 / 能力清单 / 角色定义罗列",
+      "on_topic": true,
+      "hijacked": false,
+      "pass": true,
+      "note": "如实说明无2026版",
+      "answerHead": "### 🚫 当前无 2026 年 React 版本信息  React 是由 Meta 维护的开源前端库，其版本发布节奏由官方团队决定，**截至当前（2024 年中），React 最新稳定版是 v18.3.x**（如 `18.3.1`），且"
+    },
+    {
+      "id": "cb14",
+      "tag": "web-empty-persona-dump",
+      "question": "帮我上网查一下 2026 年最新的前端构建工具排行",
+      "forbidden": "成龙 / 女演员 / 拼多多 / 财报 / 我的角色定义 / 当前可用 Tools / 自我介绍",
+      "on_topic": true,
+      "hijacked": true,
+      "pass": false,
+      "note": "引入Lisa人设和选型建议",
+      "answerHead": "我刚刚尝试为你联网检索「2026 年最新的前端构建工具排行」，但**没有检索到该问题的最新信息**。  原因如下：  - 📅 **2026 年尚未到来**（当前是 2024 年），因此不存在“2026 年最新”的实际排行数据； - 🔍 "
+    }
+  ]
+}

@@ -1,13 +1,11 @@
 /**
- * Agent 系统看板 - 入口
+ * Agent 系统看板 - 入口（CSR）
  *
- * 砍掉旧的学习数据统计，改为 Agent 系统运行看板：
- *  - 四阶分层记忆状态
- *  - RAG 检索路径分布
- *  - LangGraph 节点调用统计
- *  - 最近 Agent 事件流水
+ * 监控场景实时性优先 —— 数据每次访问从 /api/dashboard/agent 实时拉取，
+ * 配合页面内"刷新"按钮支持手动刷新。
  *
- * 数据通过 /api/dashboard/agent 实时拉取（CSR）
+ * 评估过 ISR：聚合查询慢确实有"缓存首屏"价值，但 1 小时 stale cache 在
+ * "刚发的请求要立刻看到事件流水里"的演示场景下会翻车，所以最终选 CSR。
  */
 
 import AgentDashboardClient from "./AgentDashboardClient";

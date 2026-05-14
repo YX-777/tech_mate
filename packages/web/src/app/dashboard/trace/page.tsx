@@ -51,9 +51,15 @@ const SPAN_META: Record<string, { label: string; explain: string; color: string;
   "conversation_query": { label: "💬 会话校验", explain: "查 conversation 是否存在 + 归属当前用户", color: "#a3a3a3", category: "infra" },
   "agent_process": { label: "🧠 Agent 处理", explain: "LangGraph StateGraph 整体执行（包含所有 node/tool）", color: "#6366f1", category: "agent" },
   "message_storage": { label: "💾 消息持久化", explain: "把 user message + assistant response + 执行步骤写入 SQLite", color: "#a3a3a3", category: "infra" },
-  "guardrail.input": { label: "🛡️ L1 输入注入检测", explain: "8 条规则（中英文注入、DAN、角色扮演、Markdown 注入...）扫一遍用户消息", color: "#16a34a", category: "guardrail" },
+  "guardrail.input": { label: "🛡️ 输入侧防护（L1 注入 / SSRF 短路）", explain: "注入规则扫一遍用户消息；命中内网/SSRF 探测地址则在进 pipeline 前直接短路拦截（status=error 即本次被输入侧拦下）", color: "#16a34a", category: "guardrail" },
   "guardrail.tool": { label: "🛡️ L2 工具参数校验", explain: "Zod schema + SQL/Shell/SSRF 黑名单，调工具前先 check", color: "#0891b2", category: "guardrail" },
   "guardrail.output": { label: "🛡️ L3 输出相关性+幻觉", explain: "Jaccard 算问答相关性，启发式抽事实陈述 vs RAG corpus 字符串覆盖", color: "#7c3aed", category: "guardrail" },
+  "memory.fusion": { label: "🧠 四阶记忆融合", explain: "瞬时/短期/长期/元 四路并行检索后按权重拼接上下文；attrs 带各层条数 + parallelMs", color: "#0d9488", category: "memory" },
+  "memory.instant": { label: "⚡ 瞬时记忆", explain: "滑动窗口裁剪最近 N 条消息 + token 预算（内存操作，≈0ms）", color: "#14b8a6", category: "memory" },
+  "memory.short": { label: "🕒 短期记忆", explain: "SQLite 查近期话题，按艾宾浩斯式新鲜度排序（半衰期 7 天）", color: "#14b8a6", category: "memory" },
+  "memory.long": { label: "📦 长期记忆", explain: "ChromaDB 向量相似检索 + 权重×相似度加权（四路里通常是延迟瓶颈）", color: "#14b8a6", category: "memory" },
+  "memory.meta": { label: "🧬 元记忆", explain: "聚合用户画像/技能图谱/强弱项（SQLite），注入 prompt 做个性化", color: "#14b8a6", category: "memory" },
+  "memory.review": { label: "🔁 复习推荐", explain: "按艾宾浩斯遗忘曲线（与记忆衰减同一函数）算各模块预测保持度，accuracy 调制半衰期，低于阈值建议复习", color: "#14b8a6", category: "memory" },
   "tool.rag_retrieve": { label: "📚 RAG 检索", explain: "LlamaIndex HybridFusion（Vector+BM25）→ RRF → BGE-M3 重排 → 三级策略", color: "#0ea5e9", category: "tool" },
   "tool.web_search": { label: "🌐 联网搜索", explain: "Tavily Search API，5s 超时降级，仅在时效问题 / RAG fallback 时触发", color: "#f59e0b", category: "tool" },
   "llm.stream": { label: "💬 LLM 流式输出", explain: "DashScope qwen3.6-plus，stream=true 逐 chunk 返回；记 firstByteMs + chunkCount", color: "#8b5cf6", category: "llm" },
@@ -74,6 +80,7 @@ const SLOW_MS_BY_CATEGORY: Record<string, number> = {
   llm: 3000,
   infra: 200,
   agent: 5000,
+  memory: 1200,
 };
 
 /**

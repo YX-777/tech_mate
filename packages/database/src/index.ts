@@ -11,6 +11,7 @@ import { XhsPostRepository } from './repositories/xhs-post.repository';
 import { XhsSyncRunRepository } from './repositories/xhs-sync-run.repository';
 import { ShortTermMemoryRepository } from './repositories/short-term-memory.repository';
 import { MetaMemoryRepository } from './repositories/meta-memory.repository';
+import { PageViewRepository } from './repositories/page-view.repository';
 import { EmbeddingService } from './services/embedding.service';
 import { VectorDBService } from './services/vector-db.service';
 import { XhsSyncService } from './services/xhs-sync.service';
@@ -93,6 +94,10 @@ export function getMetaMemoryRepository(): MetaMemoryRepository {
   return new MetaMemoryRepository(getPrismaClient());
 }
 
+export function getPageViewRepository(): PageViewRepository {
+  return new PageViewRepository(getPrismaClient());
+}
+
 export function getXhsSyncService(): XhsSyncService {
   return new XhsSyncService(getXhsPostRepository(), getXhsSyncRunRepository());
 }
@@ -168,6 +173,7 @@ export {
   XhsSyncRunRepository,
   ShortTermMemoryRepository,
   MetaMemoryRepository,
+  PageViewRepository,
   EmbeddingService,
   VectorDBService,
   XhsSyncService,

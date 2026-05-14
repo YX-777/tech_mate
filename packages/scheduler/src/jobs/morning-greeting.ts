@@ -3,6 +3,7 @@
  */
 
 import { logger } from "@tech-mate/core";
+import { getReviewRecommendations, formatReviewBlock } from "@tech-mate/agent-langgraph";
 import { PushNotificationService } from "../notification/push-notification";
 
 export interface MorningGreetingData {
@@ -26,7 +27,17 @@ export async function morningGreetingJob(
   const learningSuggestion = generateLearningSuggestion(data);
   const encouragement = generateEncouragement(data);
 
-  const content = `${greeting}\n\n${learningSuggestion}\n\n${encouragement}`;
+  // 艾宾浩斯遗忘曲线驱动的模块复习建议（best-effort：失败不影响早安推送）
+  let reviewBlock = "";
+  try {
+    reviewBlock = formatReviewBlock(await getReviewRecommendations(data.userId));
+  } catch (e) {
+    logger.warn(`Review recommendation failed for ${data.userId}: ${e}`);
+  }
+
+  const content = [greeting, learningSuggestion, reviewBlock, encouragement]
+    .filter((s) => s && s.trim().length > 0)
+    .join("\n\n");
 
   const quickReplies = [
     {
@@ -71,7 +82,7 @@ function generateGreeting(data: MorningGreetingData): string {
 
 function generateLearningSuggestion(data: MorningGreetingData): string {
   const suggestions = [
-    "今天建议重点攻克资料分析中的混合增长率问题，这是考试中的高频考点。",
+    "今天建议重点攻克资料分析中的混合增长率问题，这是学习中的高频考点。",
     "建议今天多做几套数量关系的练习题，提高解题速度和准确率。",
     "今天可以复习一下判断推理的逻辑关系，巩固基础知识点。",
     "建议今天进行一次模拟测试，检验最近的学习成果。",

@@ -131,5 +131,3 @@ python3 scripts/data/init-knowledge-base.py
 bash scripts/data/bootstrap-kb.sh
 ```
 
-### MCP 服务 403
-小红书账号风控，暂停采集或换账号。

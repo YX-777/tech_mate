@@ -62,8 +62,8 @@ function buildDashboardSuggestion(input: {
   if (remainingDays !== null && remainingDays <= 30) {
     return {
       level: "warning",
-      title: "临近考试，保持稳定节奏",
-      description: `距离考试还剩 ${remainingDays} 天，建议把重点放在高频模块复盘和错题回顾上，减少临时大范围切换任务。`,
+      title: "临近目标节点，保持稳定节奏",
+      description: `距离目标还剩 ${remainingDays} 天，建议把重点放在高频模块复盘和错题回顾上，减少临时大范围切换任务。`,
     };
   }
 

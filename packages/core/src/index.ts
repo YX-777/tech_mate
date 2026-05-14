@@ -5,7 +5,6 @@ import { logger } from './utils/logger';
 export * from './types';
 export * from './utils/logger';
 export * from './utils/error';
-export * from './constants/prompts';
 export * from './constants/config';
 
 export { logger, LogLevel, LogEntry } from './utils/logger';
@@ -25,15 +24,6 @@ export {
   shouldRetry,
   getRetryDelay,
 } from './utils/error';
-
-export {
-  SYSTEM_PROMPTS,
-  USER_PROMPTS,
-  LANGGRAPH_PROMPTS,
-  EXAM_PROMPTS,
-  FEEDBACK_PROMPTS,
-  MOTIVATION_PROMPTS,
-} from './constants/prompts';
 
 export {
   LEARNING_MODULES,
@@ -59,7 +49,7 @@ export {
 } from './constants/config';
 
 export const CORE_VERSION = '1.0.0';
-export const CORE_DESCRIPTION = 'Core library providing TypeScript type definitions, logging utilities, error handling, prompt templates, and configuration constants for the tech learning assistant project.';
+export const CORE_DESCRIPTION = 'Core library providing TypeScript type definitions, logging utilities, error handling, and configuration constants for the tech learning assistant project.';
 
 export function initializeCore(): void {
   logger.info('Core library initialized', { version: CORE_VERSION });
@@ -93,8 +83,6 @@ export function getCoreInfo(): {
       'shouldRetry',
     ],
     constants: [
-      'SYSTEM_PROMPTS',
-      'USER_PROMPTS',
       'DEFAULT_CONFIG',
       'ENV_VAR_NAMES',
       'API_ENDPOINTS',

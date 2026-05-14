@@ -14,6 +14,7 @@
 import { logger } from "@tech-mate/core";
 import { checkToolInvocation } from "../guardrail";
 import { withSpan } from "../otel/instrumentation";
+import { averagePairwiseSimilarity } from "../utils/semantic-sim";
 
 export interface WebSearchCitation {
   url: string;
@@ -22,11 +23,55 @@ export interface WebSearchCitation {
   score?: number;
 }
 
+export interface WebSearchTopSource {
+  title: string;
+  url: string;
+  snippet: string;
+}
+
 export interface WebSearchResult {
   answer: string;
   citations: WebSearchCitation[];
   provider: "serper" | "tavily";
+  /** P3：用于多源交叉核对的 top 来源（≥3 时 multiSource=true） */
+  topSources: WebSearchTopSource[];
+  /** P3：top-3 来源 snippet 的**平均两两 embedding 余弦**（0~1）。
+   *  语义口径诚实说明：它衡量"来源是否在谈同一件事(主题相似度)"，
+   *  **不是"事实是否一致"**——同主题但数字打架的来源仍会高分。
+   *  仅作展示信号；冲突判定无条件交给 LLM 读原文。embedding 不可用→null。 */
+  agreement: number | null;
+  multiSource: boolean;
   raw?: any;
+}
+
+/**
+ * P3：把 citations 收敛成多源核对结构。
+ * - topSources：取前 5 条有正文的来源（≥3 才算 multiSource）
+ * - agreement：top-3 snippet 的平均两两 **embedding 余弦**；
+ *   < 2 段或 embedding 失败 → null（诚实标注"未计算"，绝不写死 1.0）
+ */
+async function buildMultiSource(citations: WebSearchCitation[]): Promise<{
+  topSources: WebSearchTopSource[];
+  agreement: number | null;
+  multiSource: boolean;
+}> {
+  const withText = citations
+    .filter((c) => c.url && (c.content || "").trim().length > 0)
+    .slice(0, 5);
+  const topSources: WebSearchTopSource[] = withText.map((c) => ({
+    title: c.title || c.url,
+    url: c.url,
+    snippet: (c.content || "").trim().slice(0, 300),
+  }));
+
+  const top3 = topSources.slice(0, 3);
+  const agreementRaw = await averagePairwiseSimilarity(top3.map((s) => s.snippet));
+
+  return {
+    topSources,
+    agreement: agreementRaw === null ? null : Number(agreementRaw.toFixed(3)),
+    multiSource: topSources.length >= 3,
+  };
 }
 
 /**
@@ -120,8 +165,9 @@ async function serperSearch(query: string): Promise<WebSearchResult | null> {
         score: typeof r.position === "number" ? Math.max(0, 1 - (r.position - 1) * 0.2) : undefined,
       }));
 
-    console.log(`🌐 [WebSearch] Serper 完成 ${Date.now() - startedAt}ms, ${citations.length} 个结果`);
-    return { answer: answer || "", citations, provider: "serper", raw: data };
+    const ms = await buildMultiSource(citations);
+    console.log(`🌐 [WebSearch] Serper 完成 ${Date.now() - startedAt}ms, ${citations.length} 个结果, 多源=${ms.multiSource} 主题相似度=${ms.agreement === null ? "未计算" : ms.agreement}`);
+    return { answer: answer || "", citations, provider: "serper", raw: data, ...ms };
   } catch (error) {
     logger.warn(`[WebSearch] Serper 调用失败: ${error instanceof Error ? error.message : String(error)}`);
     return null;
@@ -170,8 +216,9 @@ async function tavilySearch(query: string): Promise<WebSearchResult | null> {
         score: typeof r.score === "number" ? r.score : undefined,
       }));
 
-    console.log(`🌐 [WebSearch] Tavily 完成 ${Date.now() - startedAt}ms, ${citations.length} 个结果`);
-    return { answer, citations, provider: "tavily", raw: data };
+    const ms = await buildMultiSource(citations);
+    console.log(`🌐 [WebSearch] Tavily 完成 ${Date.now() - startedAt}ms, ${citations.length} 个结果, 多源=${ms.multiSource} 主题相似度=${ms.agreement === null ? "未计算" : ms.agreement}`);
+    return { answer, citations, provider: "tavily", raw: data, ...ms };
   } catch (error) {
     logger.warn(`[WebSearch] Tavily 调用失败: ${error instanceof Error ? error.message : String(error)}`);
     return null;

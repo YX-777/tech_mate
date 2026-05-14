@@ -9,3 +9,4 @@ export { RuanyfWeeklyAdapter } from "./adapters/ruanyf-weekly-adapter";
 export { GithubAwesomeAdapter } from "./adapters/github-awesome-adapter";
 export { HuggingFaceBlogAdapter } from "./adapters/huggingface-blog-adapter";
 export { LangChainBlogAdapter } from "./adapters/langchain-blog-adapter";
+export { GenericRssAdapter } from "./adapters/generic-rss-adapter";

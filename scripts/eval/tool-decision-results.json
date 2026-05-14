@@ -1,0 +1,444 @@
+{
+  "timestamp": "2026-05-17T16:52:53.505Z",
+  "evalSetSize": 24,
+  "summary": {
+    "kbAcc": 0.9166666666666666,
+    "webAcc": 1,
+    "exactAcc": 0.9166666666666666,
+    "modelDecidedRate": 1
+  },
+  "rows": [
+    {
+      "id": "d01",
+      "tag": "concept",
+      "question": "什么是 React 的并发渲染？",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "React 并发渲染 原理 机制"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d02",
+      "tag": "concept",
+      "question": "解释一下 RRF 融合的原理",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "RRF 融合算法 原理"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d03",
+      "tag": "concept",
+      "question": "Next.js App Router 和 Pages Router 有什么区别",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "Next.js App Router vs Pages Router 区别"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d04",
+      "tag": "concept",
+      "question": "什么是 Function Calling",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "Function Calling 概念 原理"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d05",
+      "tag": "concept",
+      "question": "LangGraph 和普通 Chain 有什么不同",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "LangGraph vs Chain 区别"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d06",
+      "tag": "concept",
+      "question": "TypeScript 泛型约束怎么写",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "TypeScript 泛型约束 语法 写法"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d07",
+      "tag": "concept",
+      "question": "怎么排查 Node.js 内存泄漏",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "Node.js 内存泄漏 排查方法"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d08",
+      "tag": "concept",
+      "question": "SSE 和 WebSocket 有什么区别",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "SSE 和 WebSocket 区别"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d09",
+      "tag": "concept",
+      "question": "什么是向量数据库",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "向量数据库 定义 原理"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d10",
+      "tag": "concept",
+      "question": "BGE-M3 重排是怎么工作的",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "BGE-M3 重排机制 原理"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d11",
+      "tag": "concept",
+      "question": "如何用 Prisma 做数据库迁移",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "Prisma 数据库迁移 命令行 使用方法"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d12",
+      "tag": "concept",
+      "question": "什么是 OpenTelemetry",
+      "expect": {
+        "kb": true,
+        "web": false
+      },
+      "got": {
+        "kb": true,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "OpenTelemetry 定义 原理 作用"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d13",
+      "tag": "timeliness",
+      "question": "拼多多 2026 年最新营收是多少",
+      "expect": {
+        "kb": false,
+        "web": true
+      },
+      "got": {
+        "kb": false,
+        "web": true,
+        "modelDecided": true,
+        "refinedQuery": "拼多多 2026 年 营收 数据"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d14",
+      "tag": "timeliness",
+      "question": "2026 年最火的前端框架是什么",
+      "expect": {
+        "kb": false,
+        "web": true
+      },
+      "got": {
+        "kb": false,
+        "web": true,
+        "modelDecided": true,
+        "refinedQuery": "2026 年 最火 前端框架"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d15",
+      "tag": "timeliness",
+      "question": "Next.js 15 正式版的发布日期",
+      "expect": {
+        "kb": false,
+        "web": true
+      },
+      "got": {
+        "kb": false,
+        "web": true,
+        "modelDecided": true,
+        "refinedQuery": "Next.js 15 正式版 发布日期"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d16",
+      "tag": "timeliness",
+      "question": "今天 OpenAI 有什么新闻",
+      "expect": {
+        "kb": false,
+        "web": true
+      },
+      "got": {
+        "kb": false,
+        "web": true,
+        "modelDecided": true,
+        "refinedQuery": "OpenAI 最新新闻 2024"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d17",
+      "tag": "timeliness",
+      "question": "苹果最新一代 M 系列芯片性能如何",
+      "expect": {
+        "kb": false,
+        "web": true
+      },
+      "got": {
+        "kb": true,
+        "web": true,
+        "modelDecided": true,
+        "refinedQuery": "苹果 M 系列芯片 性能评测 最新世代"
+      },
+      "kbOk": false,
+      "webOk": true,
+      "exact": false
+    },
+    {
+      "id": "d18",
+      "tag": "timeliness",
+      "question": "2026 年 AI Agent 领域有哪些新进展",
+      "expect": {
+        "kb": false,
+        "web": true
+      },
+      "got": {
+        "kb": true,
+        "web": true,
+        "modelDecided": true,
+        "refinedQuery": "2026 AI Agent 新进展"
+      },
+      "kbOk": false,
+      "webOk": true,
+      "exact": false
+    },
+    {
+      "id": "d19",
+      "tag": "chitchat",
+      "question": "你好",
+      "expect": {
+        "kb": false,
+        "web": false
+      },
+      "got": {
+        "kb": false,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "你好"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d20",
+      "tag": "chitchat",
+      "question": "谢谢你的帮助",
+      "expect": {
+        "kb": false,
+        "web": false
+      },
+      "got": {
+        "kb": false,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "谢谢你的帮助"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d21",
+      "tag": "chitchat",
+      "question": "讲个笑话听听",
+      "expect": {
+        "kb": false,
+        "web": false
+      },
+      "got": {
+        "kb": false,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "讲个笑话听听"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d22",
+      "tag": "emotion",
+      "question": "我最近学得好累，有点想放弃了",
+      "expect": {
+        "kb": false,
+        "web": false
+      },
+      "got": {
+        "kb": false,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "我最近学得好累，有点想放弃了"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d23",
+      "tag": "emotion",
+      "question": "面试又挂了，好挫败",
+      "expect": {
+        "kb": false,
+        "web": false
+      },
+      "got": {
+        "kb": false,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "面试又挂了，好挫败"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    },
+    {
+      "id": "d24",
+      "tag": "emotion",
+      "question": "压力好大，焦虑得睡不着",
+      "expect": {
+        "kb": false,
+        "web": false
+      },
+      "got": {
+        "kb": false,
+        "web": false,
+        "modelDecided": true,
+        "refinedQuery": "压力好大，焦虑得睡不着"
+      },
+      "kbOk": true,
+      "webOk": true,
+      "exact": true
+    }
+  ]
+}

@@ -22,6 +22,7 @@ import { DEFAULT_POLICIES } from "./policies";
 import type { GuardHit, GuardResult } from "./types";
 import { getCurrentTrace } from "../otel/async-context";
 import { logAgentEvent } from "../utils/event-logger";
+import { semanticSimilarity } from "../utils/semantic-sim";
 
 export interface RAGSourceSnippet {
   content: string;
@@ -86,42 +87,6 @@ export function computeFactCoverage(claims: string[], sources: RAGSourceSnippet[
   return { ratio: coveredCount / claims.length, uncoveredClaims: uncovered };
 }
 
-/** Jaccard 相似度（cosine 退化版，不依赖 embedding）
- *
- * 关键修正：中文没有空格，原版按 \s+ 切会把整句中文当成一个 token，
- *          导致 Q&A 的 sim 永远接近 0。这里做 CJK-aware 分词：
- *          - 英文/数字按空格切
- *          - 中文按 2-char bigram 滑窗
- *          - 两者合并去重
- */
-function jaccardSimilarity(a: string, b: string): number {
-  const tokenize = (s: string): Set<string> => {
-    const tokens = new Set<string>();
-    const cleaned = s.toLowerCase().replace(/[，。！？,.!?；;:：、（）()\[\]【】「」""'']/g, " ");
-    // 英文/数字 token（长度 ≥ 2）
-    for (const tok of cleaned.split(/\s+/)) {
-      if (tok.length >= 2 && /[a-z0-9]/.test(tok)) tokens.add(tok);
-    }
-    // CJK 字符 bigram
-    const cjk = cleaned.replace(/[^一-龥]/g, " ");
-    for (const seg of cjk.split(/\s+/)) {
-      if (seg.length >= 2) {
-        for (let i = 0; i <= seg.length - 2; i++) {
-          tokens.add(seg.slice(i, i + 2));
-        }
-      }
-    }
-    return tokens;
-  };
-  const sa = tokenize(a);
-  const sb = tokenize(b);
-  if (sa.size === 0 || sb.size === 0) return 0;
-  let inter = 0;
-  sa.forEach(t => { if (sb.has(t)) inter++; });
-  const union = sa.size + sb.size - inter;
-  return union > 0 ? inter / union : 0;
-}
-
 /**
  * 输出验证（异步，不阻塞主流程）
  */
@@ -130,29 +95,28 @@ export async function checkOutput(input: OutputGuardInput): Promise<GuardResult>
   const policies = DEFAULT_POLICIES;
   const hits: GuardHit[] = [];
 
-  // ---- 1) 相关性检查 ----
-  // 关键修正：以下场景直接跳过相关性检查（sim 仍计算并记录，但不计 hit）：
-  //  a) 用户问题过短（< 8 字符，如快捷回复 "确认计划" / "继续" / "好的"）
-  //     —— embedding/jaccard 在超短 query 上失真，会把合理回答误判低相关
-  //  b) 没有 RAG 上下文（对话/创意/任务规划场景）
-  //     —— 这类回答天然不与问题词面共现，相关性判定既无 ground truth 也无意义
-  //  这样 L3 在"无 RAG"场景下基本只对真正的离题输出报警，避免一直冒 ⚠️
-  const questionLen = input.question.trim().length;
+  // ---- 1) 相关性检查（语义余弦）----
+  // 口径：cosine(embedding(问题), embedding(答案))，DashScope text-embedding-v2 1536 维。
+  //   旧实现是 Jaccard 词面重合 —— 短问题 vs 长答案恒趋近 0，误报 "相关性 1%"。
+  //   已删掉原 questionLen<8 的跳过 hack（那是 Jaccard 时代的补丁，embedding 对短文本不失真）。
+  //   仍仅在有可对照知识源时做整套 L3（与 fact-coverage 的 applied 口径一致）。
+  //   embedding 不可用 → simScore=null → 不误报、诚实标注"未计算"（绝不写死分数）。
   const hasRagContext = (input.ragSources ?? []).length > 0;
-  const skipRelevance = questionLen < 8 || !hasRagContext;
-  const sim = skipRelevance
-    ? 1
-    : input.computeSim
+  const skipRelevance = !hasRagContext;
+  let simScore: number | null = null;
+  if (!skipRelevance) {
+    simScore = input.computeSim
       ? await input.computeSim(input.question, input.answer)
-      : jaccardSimilarity(input.question, input.answer);
+      : await semanticSimilarity(input.question, input.answer);
+  }
 
-  if (!skipRelevance && sim < policies.relevanceThreshold) {
+  if (simScore !== null && simScore < policies.relevanceThreshold) {
     hits.push({
       ruleId: "out-low-relevance",
       ruleName: "low-relevance",
       layer: "output",
       risk: "medium",
-      reason: `回答与问题相关性偏低（sim=${sim.toFixed(2)} < ${policies.relevanceThreshold}）`,
+      reason: `回答与问题语义相关性偏低（cosine=${simScore.toFixed(3)} < ${policies.relevanceThreshold}）`,
     });
   }
 
@@ -174,6 +138,11 @@ export async function checkOutput(input: OutputGuardInput): Promise<GuardResult>
     });
   }
 
+  // L3 是否真正执行了校验：只有存在可对照的知识源（kb / web）时才有意义。
+  // 纯闲聊 / 创意 / 任务规划没有 ground truth —— 此时**诚实上报"未校验"**，
+  // 绝不把 similarity / factCoverage 写死成 1.0 再亮绿盾（P1 修复点）。
+  const outputCheckApplied = hasRagContext;
+
   const result: GuardResult = {
     layer: "output",
     passed: hits.length === 0,
@@ -181,9 +150,10 @@ export async function checkOutput(input: OutputGuardInput): Promise<GuardResult>
     maxRisk: hits.length === 0 ? "low" : "medium",
     action: "allow", // L3 永远 allow，仅记录
     metadata: {
-      similarity: sim,
+      applied: outputCheckApplied,
+      similarity: simScore ?? undefined,
       factClaims: claims.length,
-      factCoverage: ratio,
+      factCoverage: outputCheckApplied ? ratio : undefined,
       uncoveredSample: uncoveredClaims.slice(0, 3),
     },
     durationMs: Date.now() - t0,
@@ -193,9 +163,10 @@ export async function checkOutput(input: OutputGuardInput): Promise<GuardResult>
   if (trace) {
     const span = trace.startSpan("guardrail.output");
     span.setAttributes({
-      similarity: Number(sim.toFixed(3)),
+      applied: outputCheckApplied,
+      similarity: simScore == null ? -1 : Number(simScore.toFixed(3)),
       factClaims: claims.length,
-      factCoverage: Number(ratio.toFixed(3)),
+      factCoverage: outputCheckApplied ? Number(ratio.toFixed(3)) : -1,
       hits: hits.length,
     });
     trace.endSpan(span, "success");
@@ -209,8 +180,9 @@ export async function checkOutput(input: OutputGuardInput): Promise<GuardResult>
       eventName: "output_check",
       payload: {
         layer: "output",
-        similarity: sim,
-        factCoverage: ratio,
+        applied: outputCheckApplied,
+        similarity: simScore,
+        factCoverage: outputCheckApplied ? ratio : null,
         claimsCount: claims.length,
         hits: hits.map(h => ({ id: h.ruleId, risk: h.risk, reason: h.reason })),
       },

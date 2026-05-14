@@ -7,7 +7,7 @@ import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages
 import { logger, QuickReplyOption } from "@tech-mate/core";
 import type { UserIntent } from "@tech-mate/core";
 import { getChatModel, startStreamLLM, resolveTierConfig, type LLMTier, type RoutingHint } from "../llm";
-import { SYSTEM_PROMPTS } from "../prompts/system-prompts";
+import { SYSTEM_PROMPTS, buildAnswerRules, buildWebEmptyNotice } from "../prompts/system-prompts";
 import { TASK_PROMPTS } from "../prompts/task-prompts";
 import { getMCPToolClient } from "../tools/mcp-tools";
 import { TimeTools, StringTools, ProgressTools, LogTools } from "../tools/local-tools";
@@ -16,7 +16,10 @@ import { getContextEnhancer } from "../middleware/context-enhancer";
 import { getAgentConfig } from "../config/agent.config";
 import type { GraphStateType } from "./state";
 import { retrieveWithFallback } from "../utils/rag-fallback";
+import { planRetrieval } from "./retrieval-planner";
+import { isKbConfident, decideWeb } from "./retrieval-decision";
 import { shouldUseWebSearch, webSearch, type WebSearchResult } from "../tools/web-search";
+import { SSRF_INTERNAL_PATTERN } from "../guardrail";
 import { logAgentEvent } from "../utils/event-logger";
 import { getCurrentTrace } from "../otel/async-context";
 import {
@@ -1088,6 +1091,61 @@ export async function* generalQANodeStream(
     const lastMessage = state.messages[state.messages.length - 1];
     const content = lastMessage.content as string;
 
+    // ========== 输入侧 SSRF / 内网地址短路（串话回归修复点）==========
+    // 2026-05-19 服务器实测：用户问"上网查 http://localhost:8000/admin"，
+    // web_search 被 L2 SSRF 正确拦下返回 null，但随后 prompt 装配里
+    // `if (webResult && ...)` 把整个联网块跳过 → 模型完全不知道"联网试过且为空"，
+    // 拿着 DEFAULT 人设 + 污染历史裸奔，把人设背一遍并把历史里拼多多/成龙等
+    // 旧话题一次性扫答（典型 context-bleed）。
+    // 根因不是规则缺失，是 buildAnswerRules 第 3 条锚在了模型感知不到的状态上。
+    // 修法：内网/SSRF 探测在跑完整 pipeline 前就短路——给一句诚实、紧扣本问题的
+    // 拒答，绝不进入记忆/RAG/历史链路，从源头消除串话可能。pattern 复用
+    // guardrail 的 SSRF_INTERNAL_PATTERN 单一来源（与 L2 工具守卫同一条规则）。
+    const ssrfMatch = content.match(SSRF_INTERNAL_PATTERN);
+    if (ssrfMatch) {
+      // 写一条 guardrail.input 错误 span：
+      //  ① 让 Trace Viewer 如实显示"被输入侧 SSRF 闸拦截"，而不是零 guard span；
+      //  ② route.ts 据此把 GuardRail 摘要的 input 层标 block（与 L2 同一套 span 机制）。
+      const _trace = getCurrentTrace();
+      if (_trace) {
+        const _sp = _trace.startSpan("guardrail.input");
+        _sp.setAttributes({
+          layer: "input",
+          reason: "SSRF / 内网访问",
+          matchedText: (ssrfMatch[0] || "").slice(0, 60),
+          maxRisk: "high",
+          blocked: true,
+        });
+        _trace.endSpan(_sp, "error", "SSRF / 内网访问短路拦截");
+      }
+      yield {
+        type: "step",
+        text: "",
+        stepId: "input_guard",
+        stepLabel: "输入安全检查",
+        stepIcon: "🛡️",
+        stepStatus: "done",
+        stepDetail: "识别到内网/SSRF 探测地址，短路拒答（不进入检索/记忆/历史链路）",
+      };
+      const ssrfReply =
+        "我无法访问内网或本机地址（如 `localhost`、`127.0.0.1`、私有网段 `192.168.x` / `10.x` / `172.16-31.x`，以及 `file://` 等协议）。" +
+        "这类地址只有你本机或内网能打开，我运行在隔离环境、没有对内网的出向访问权限，也看不到页面内容或登录态。\n\n" +
+        "如果你想排查这个本地后台，可以在**你自己的浏览器/终端**里确认：服务是否在跑、端口是否正确、控制台/Network 有没有报错。" +
+        "需要的话，把报错信息贴给我，我可以帮你分析，或写一个最小可运行的后台模板。";
+      yield { type: "content", text: ssrfReply };
+      LogTools.logAgentDecision(state.userId, state.userIntent, "SSRF Short-Circuit");
+      return {
+        ...state,
+        messages: [...state.messages, new AIMessage(ssrfReply)],
+        quickReplyOptions: createQuickReplies([
+          "这个本地后台怎么排查？",
+          "帮我写个后台最小模板",
+          "换个问题",
+        ]),
+        waitingForUserInput: false,
+      };
+    }
+
     // ========== 用户身份抽取（在记忆检索前先持久化姓名）==========
     // 这样如果用户说"我叫小明"，会立刻写入 UserProfile.nickname，
     // 紧随其后的记忆融合就会在 fusedContext 顶部带上"用户称呼"。
@@ -1106,6 +1164,59 @@ export async function* generalQANodeStream(
       "今日任务", "今天的任务", "还有什么没做", "还剩什么", "我有什么任务", "我的任务",
     ].some((kw) => content.includes(kw));
 
+    // ========== P4-A：模型自主工具决策（function calling 痕迹）==========
+    // 把"查不查 KB / 要不要联网 / 检索 query"从关键词正则升级为模型一次结构化决策。
+    // 任务查询本地权威 → 跳过决策；模型决策解析失败 → 回退原启发式（零风险降级）。
+    yield {
+      type: "step",
+      text: "",
+      stepId: "tool_decision",
+      stepLabel: "工具决策 (function calling)",
+      stepIcon: "🛠️",
+      stepStatus: "running",
+    };
+    const toolPlan = isTaskQuery
+      ? {
+          useKb: false,
+          useWeb: false,
+          refinedQuery: content,
+          reason: "任务查询：本地 SQLite 任务表是权威来源，不调用外部检索",
+          modelDecided: true as boolean,
+        }
+      : await planRetrieval(content);
+    const planFellBack = !toolPlan.modelDecided;
+    const retrievalQuery = toolPlan.refinedQuery || content;
+    // KB 启用：模型决策；解析失败时回退原启发式 shouldRouteToXiaohongshuRag
+    const wantKb = planFellBack ? shouldRouteToXiaohongshuRag(content) : toolPlan.useKb;
+    yield {
+      type: "step",
+      text: "",
+      stepId: "tool_decision",
+      stepLabel: "工具决策 (function calling)",
+      stepIcon: "🛠️",
+      stepStatus: "done",
+      stepDetail: planFellBack
+        ? `模型决策不可用 → 回退关键词启发式（kb=${wantKb}）`
+        : `模型决策 kb=${toolPlan.useKb} web=${toolPlan.useWeb}${
+            retrievalQuery !== content ? ` · 改写="${retrievalQuery}"` : ""
+          } · ${toolPlan.reason}`,
+    };
+    logAgentEvent({
+      userId: state.userId,
+      eventType: "rag",
+      eventName: "tool_decision",
+      payload: {
+        modelDecided: toolPlan.modelDecided,
+        isTaskQuery,
+        useKb: toolPlan.useKb,
+        useWeb: toolPlan.useWeb,
+        originalQuery: content, // 原始口语化问题，与 refinedQuery 配对，便于离线核查改写质量/命中率
+        refinedQuery: retrievalQuery,
+        rewritten: retrievalQuery !== content,
+        reason: toolPlan.reason,
+      },
+    });
+
     // ========== Memory + RAG 并行检索（性能优化）==========
     // 两条链路无数据依赖：memory 用 long_term_memory collection，RAG 用 tech_knowledge collection
     // 串行 4-7s → 并行 max ≈ 2-4s，省 ~40-50% 等待时间
@@ -1119,7 +1230,8 @@ export async function* generalQANodeStream(
       stepStatus: "running",
     };
 
-    const ragEnabled = !isTaskQuery && config.features.ragEnabled && shouldRouteToXiaohongshuRag(content);
+    // wantKb 来自上面的模型决策（回退时已是原启发式）
+    const ragEnabled = !isTaskQuery && config.features.ragEnabled && wantKb;
     if (ragEnabled) {
       yield {
         type: "step",
@@ -1139,7 +1251,7 @@ export async function* generalQANodeStream(
     const memoryRetriever = getMemoryFusionRetriever();
     const memoryPromise = memoryRetriever.retrieve(state.userId, content, memoryMessages);
     const ragPromise = ragEnabled
-      ? retrieveWithFallback(content, { topK: 5, userId: state.userId })
+      ? retrieveWithFallback(retrievalQuery, { topK: 5, userId: state.userId })
       : Promise.resolve(null);
 
     // 并行执行（关键点）
@@ -1191,8 +1303,20 @@ export async function* generalQANodeStream(
     // 触发条件：RAG tier=fallback/expand 或问题命中时效/显式联网关键词
     // 任务查询直接跳过——"今天"会被时效关键词命中触发 Tavily，但任务答案在本地 DB
     let webResult: WebSearchResult | null = null;
-    const ragTier: string | undefined = ragResults.length > 0 ? "candidates" : undefined;
-    if (!isTaskQuery && shouldUseWebSearch(content, ragTier)) {
+
+    // ===== 真 tier 驱动检索恢复（A 治本 + B1 多源，逻辑见 retrieval-decision.ts）=====
+    // 旧代码用 `ragResults.length>0 ? "candidates" : undefined` 捏假 tier，丢了真实
+    // 低置信信号。这里取真 tier，决策走纯函数单一来源（可确定性单测）。
+    const kbTier = ragFallbackResult?.tier ?? "";
+    const kbConfident = isKbConfident(kbTier, ragResults.length);
+    const doWebSearch = decideWeb({
+      isTaskQuery,
+      modelUseWeb: toolPlan.useWeb,
+      planFellBack,
+      heuristicWeb: shouldUseWebSearch(content, kbTier || undefined),
+      tier: kbTier,
+    });
+    if (doWebSearch) {
       const webT0 = Date.now();
       yield {
         type: "step",
@@ -1202,7 +1326,7 @@ export async function* generalQANodeStream(
         stepIcon: "🌐",
         stepStatus: "running",
       };
-      webResult = await webSearch(content);
+      webResult = await webSearch(retrievalQuery);
       const webDuration = Date.now() - webT0;
       // 写入事件日志，供 Dashboard 累加 webCount
       logAgentEvent({
@@ -1213,7 +1337,13 @@ export async function* generalQANodeStream(
           webCount: webResult?.citations.length ?? 0,
           success: !!webResult,
           provider: webResult?.provider,
-          ragTier,
+          ragTier: kbTier || null, // 真 tier（precise/candidates/expand/fallback）
+          kbConfident, // 本次 KB 是否算可信命中（observability）
+          // P3 可观测：多源核对是否启用 + 来源一致度（弱信号）。
+          // Dashboard / P6 eval 据此统计「多源覆盖率」「低一致度触发率」
+          multiSource: webResult?.multiSource ?? false,
+          sourceCount: webResult?.topSources?.length ?? 0,
+          agreement: webResult?.agreement ?? null,
           query: content.slice(0, 80),
         },
         durationMs: webDuration,
@@ -1226,7 +1356,13 @@ export async function* generalQANodeStream(
         stepIcon: "🌐",
         stepStatus: webResult ? "done" : "skip",
         stepDetail: webResult
-          ? `${webResult.provider === "serper" ? "Serper" : "Tavily"} · ${webResult.citations.length} 个来源 · ${webDuration}ms`
+          ? `${webResult.provider === "serper" ? "Serper" : "Tavily"} · ${webResult.citations.length} 个来源 · ${
+              webResult.multiSource
+                ? typeof webResult.agreement === "number"
+                  ? `多源核对(主题相似度 ${Math.round(webResult.agreement * 100)}%·非事实一致)`
+                  : "多源核对(主题相似度未计算)"
+                : "单源"
+            } · ${webDuration}ms`
           : "联网搜索调用失败，跳过",
       };
     } else {
@@ -1241,6 +1377,56 @@ export async function* generalQANodeStream(
       };
     }
 
+    // ========== P2：检索路由（把"用哪类知识源"这个隐式决策显式化 + 可观测）==========
+    // 早期设计问题："只有分类标签没有路由可观测、没有占比指标"。这里不改图拓扑，
+    // 而是把 general_qa 内部"KB / 联网 / 记忆"的实际取舍升级成一等公民信号：
+    // 出 step（前端轨迹可见）+ 写事件日志（Dashboard / P6 可统计各路由占比）。
+    // 用真置信：expand/fallback 不算"本地命中"，路由如实标 web_only / model_knowledge
+    const hasKBHit = kbConfident;
+    const hasWebHit = !!webResult;
+    const hasMemoryHit = !!(memoryContextPrompt && memoryContextPrompt.trim().length > 0);
+    const retrievalRoute = hasKBHit && hasWebHit
+      ? "kb+web"
+      : hasKBHit
+        ? "kb_only"
+        : hasWebHit
+          ? "web_only"
+          : hasMemoryHit
+            ? "memory_grounded"
+            : "model_knowledge";
+    const routeReason = {
+      "kb+web": "本地知识库命中 + 触发联网补充，交叉作答",
+      kb_only: "本地知识库命中，足以作答",
+      web_only: "本地无命中，转联网搜索",
+      memory_grounded: "无外部知识，基于对话记忆/用户画像作答",
+      model_knowledge: "无外部知识源，依赖模型通用知识（已据此降低可信度声明）",
+    }[retrievalRoute];
+    console.log(`🧭 [RetrievalRoute] ${retrievalRoute} | ${routeReason} | kb=${ragResults.length} web=${hasWebHit} mem=${hasMemoryHit}`);
+    logAgentEvent({
+      userId: state.userId,
+      eventType: "rag",
+      eventName: "retrieval_route",
+      payload: {
+        route: retrievalRoute,
+        hasKB: hasKBHit,
+        hasWeb: hasWebHit,
+        hasMemory: hasMemoryHit,
+        kbHits: ragResults.length,
+        // P4-A 协同：该路由是模型决策的结果，而非事后启发式观测
+        modelDecided: toolPlan.modelDecided,
+        queryRewritten: retrievalQuery !== content,
+      },
+    });
+    yield {
+      type: "step",
+      text: "",
+      stepId: "route",
+      stepLabel: "检索路由",
+      stepIcon: "🧭",
+      stepStatus: "done",
+      stepDetail: `${retrievalRoute} · ${routeReason}`,
+    };
+
     // ========== 装配 systemPrompt：DEFAULT + 四阶记忆 + RAG 带来源 + 来源规则 ==========
     let enhancedSystemPrompt = SYSTEM_PROMPTS.DEFAULT;
     const usedSources: Array<{ type: "memory" | "kb" | "web"; title: string; detail?: string; url?: string; score?: number }> = [];
@@ -1250,7 +1436,9 @@ export async function* generalQANodeStream(
       usedSources.push({ type: "memory", title: "四阶分层记忆", detail: "瞬时/短期/长期/元记忆融合" });
     }
 
-    if (ragResults.length > 0) {
+    // 仅 precise/candidates 才把 KB 当依据展示+注入；expand/fallback 的低置信
+    // 残渣不上桌（不进 usedSources、不进 prompt）——A 治本核心。
+    if (kbConfident) {
       const ragBlock = ragResults
         .map((r, i) => {
           const title = r.metadata?.title || `知识点 ${i + 1}`;
@@ -1300,50 +1488,103 @@ export async function* generalQANodeStream(
       console.warn("[general_qa] inject task context failed:", e?.message || e);
     }
 
-    if (webResult && webResult.answer) {
+    if (webResult && (webResult.answer || (webResult.topSources?.length ?? 0) > 0)) {
       const webCitations = webResult.citations.slice(0, 5);
-      const citationsList = webCitations
-        .map((c, i) => `   - [${c.title || c.url}](${c.url})`)
-        .join("\n");
-      enhancedSystemPrompt += `\n\n## 🌐 联网搜索结果\n${webResult.answer}\n\n参考链接：\n${citationsList || "（无）"}`;
+      // P3：把多个独立来源逐条编号喂给模型，要求交叉核对而不是只信第一条。
+      const sourcesForPrompt =
+        webResult.topSources && webResult.topSources.length > 0
+          ? webResult.topSources
+          : webCitations.map((c) => ({ title: c.title || c.url, url: c.url, snippet: c.content || "" }));
+      const numberedSources = sourcesForPrompt
+        .map((s, i) => `[来源${i + 1}] ${s.title}\n${(s.snippet || "").trim() || "（无正文摘要）"}\n（${s.url}）`)
+        .join("\n\n");
+      // 注意：不再用 agreement 阈值去 gate 冲突提示。
+      // 原因：embedding 语义相似度衡量的是"来源是否在谈同一件事"，
+      // 不是"事实是否一致"——5 篇都讲'2026 薪资'的文章，哪怕数字打架，余弦仍 ~0.5+。
+      // 所以交叉核对指令**无条件注入**，冲突判定只靠 LLM 真读来源（唯一诚实机制）。
+      enhancedSystemPrompt += `\n\n## 🌐 联网搜索结果（${sourcesForPrompt.length} 个独立来源，含域名，可据此判断权威性）
+${webResult.answer ? `综合摘要：${webResult.answer}\n\n` : ""}${numberedSources}
+
+【多源核对与可信度要求 — 必须逐条执行】
+1. 逐个来源交叉核对：对关键事实（数字 / 时间 / 结论），先比对各来源是否一致。${kbConfident ? "本场景同时给了【📚 本地知识库】块，须把本地知识库与各 web 来源**一并**交叉核对；二者冲突时同样要把分歧呈现给用户，不得只采信一方。" : ""}
+2. 来源间不一致 → **必须把分歧呈现给用户**：列出不同来源各自的说法 / 数字（可用区间或并列），严禁只采信其中一条而不说明。不强求固定字样，但用户必须看得到"来源说法不一"。
+3. **评估来源权威性**（依据上面每条来源的标题与域名）：若来源主要是论坛 / 个人专栏 / 问答 / 营销号 / 培训机构软文（如 CSDN 个人专栏、知乎回答、培训机构站点等），**严禁使用"权威机构""综合预测""官方数据"这类拔高措辞**，必须改用"以下为网络公开信息，口径不一、仅供参考"并提示用户以官方 / 一手渠道为准；仅当来源确为权威（官方统计、一手财报、标准文档）时才可用肯定语气。
+4. 不要编造来源里没有的细节。`;
       webCitations.forEach((c) => {
+        // detail 透传 citation 正文片段（截短 400 字）——
+        // 关键：L3 OutputGuard 的事实交叉验证靠 detail 对照，
+        // 不传 detail 联网回答会被判"无来源"直接跳过校验（P1 修复点）
+        const webSnippet = (c.content || "").trim();
         usedSources.push({
           type: "web",
           title: c.title || c.url,
           url: c.url,
+          detail: webSnippet.length > 0 ? webSnippet.slice(0, 400) : undefined,
         });
       });
       if (webCitations.length === 0) {
         // 没有 citations 时也记一条 web 来源
         usedSources.push({ type: "web", title: "Perplexity Sonar 综合搜索" });
       }
+    } else if (doWebSearch) {
+      // ========== 联网请求了但没拿到结果（串话回归修复点）==========
+      // SSRF 已在输入侧短路；这里兜其余 null 原因：无可用 provider / 超时 /
+      // HTTP 错 / 异常。原代码此时整个联网块被跳过 → 模型不知道"联网试过且为空"，
+      // buildAnswerRules 第 3 条"联网为空必须如实说没查到"锚在了模型感知不到的
+      // 状态上，于是模型拿污染历史拼凑、背人设。这里把"联网为空"显式喂给模型，
+      // 给第 3 条一个能感知的真实锚点，并直接堵掉"扫历史 / 背人设"两个具体坏行为。
+      // 文案走 buildWebEmptyNotice() 单一来源，context-bleed 回归测的就是这一份。
+      enhancedSystemPrompt += `\n\n${buildWebEmptyNotice()}`;
     }
 
-    // 回答规则（来源不在正文里列，前端会独立渲染来源 chip 区块）
-    enhancedSystemPrompt += `\n\n## 📌 回答规则
-1. 严格利用上面的【🧠 对话记忆】保持上下文连贯。若记忆中包含用户姓名/技能/偏好等信息，回答时必须用上，绝对不要回复"我没有存储或访问个人信息"等推卸性话术。
-2. 优先基于【📚 本地知识库】和【🌐 联网搜索结果】回答技术问题；都不足时再结合你的通用知识。
-3. **不要在回答末尾列"参考来源"区块**——系统会在 UI 中独立展示参考来源 chip，正文里重复列出反而冗余。如果想强调某个来源，在正文中自然提及即可（例如"根据 Next.js 16 发布日志..."）。
-4. 回答要简洁、有结构（适当使用标题、列表），不要堆砌"思考过程"或"自我提醒"之类的内部内容。
-`;
+    // P5：把"可引用来源"按 UI 展示顺序统一编号喂给模型，要求行内引用 [n]。
+    // 编号必须与前端 SourcesSection 可见来源顺序一致（usedSources 去掉 memory）。
+    const citableSources = usedSources.filter((s) => s.type !== "memory");
+    const citableList = citableSources
+      .map((s, i) => `[${i + 1}] ${s.type === "kb" ? "📚" : "🌐"} ${s.title}`)
+      .join("\n");
+
+    // 回答规则（来源不单列区块，但要求行内引用角标 [n]，前端渲染成可点溯源）
+    enhancedSystemPrompt +=
+      "\n\n" +
+      buildAnswerRules({
+        hasCitableSources: citableSources.length > 0,
+        citableList,
+      });
 
     // ========== 装配历史对话 ==========
     // state.messages 最后一条是当前用户消息，单独作为 userPrompt；前面的作为 history
+    // 单条历史截断：上一轮若是长答案(如 1200+ 字)，原样塞进 message 数组会因
+    // "最近性"盖过本轮问题 → 模型续答上一轮(串话根因之一)。截断到保留指代/追问
+    // 连续性的长度即可(追问"再举个例子"靠这点上下文足够)，不让它霸占语境。
+    const HISTORY_MSG_CAP = 500;
     const historyForLLM = state.messages
       .slice(0, -1)
       .map((msg: any) => {
         const rawRole = msg.role || (msg._getType ? msg._getType() : "user");
         const role: "user" | "assistant" =
           rawRole === "assistant" || rawRole === "ai" ? "assistant" : "user";
-        const content = typeof msg.content === "string" ? msg.content : "";
+        let content = typeof msg.content === "string" ? msg.content : "";
+        if (content.length > HISTORY_MSG_CAP) {
+          content =
+            content.slice(0, HISTORY_MSG_CAP) +
+            " …〔上一轮内容已截断，仅供指代/追问参考，不要整段重复或延续其主题〕";
+        }
         return { role, content };
       })
       .filter((m: any) => m.content && m.content.trim().length > 0);
 
     console.log(`🧩 [Context] 注入历史消息 ${historyForLLM.length} 条 + memoryPrompt ${memoryContextPrompt.length} 字符 + ragResults ${ragResults.length} 条`);
 
-    // userPrompt 保持纯净：当前问题 + 时间/日期/学习上下文（由 enhanceUserMessage 注入）
-    const userPrompt = enhancedMessage;
+    // 当前问题置于"最近位置"(history 之后)做主题纪律自检——这是对抗"按最近轮次
+    // 延续"的高杠杆点：buildAnswerRules 同义规则埋在长 system prompt 顶部权重被冲淡，
+    // 这里贴着生成点重申，且保留正当追问(同主题才延续)，不误杀"再举个例子"类。
+    const userPrompt =
+      "【作答纪律 · 先自检】判断下面这条问题与上一轮是否同一主题：\n" +
+      "· 不同主题 → 完全切换到新主题作答，绝不延续、绝不重复上一轮的内容；\n" +
+      "· 确为对上一轮的追问(如「再举个例子」「详细说说那个」) → 才延续上一轮。\n" +
+      "然后只回答这一条问题本身：\n" +
+      enhancedMessage;
 
     const genT0 = Date.now();
     // 解析 T2 当前真实使用的 model 名 → 让 stepDetail 跟着路由变化
@@ -1391,7 +1632,7 @@ export async function* generalQANodeStream(
     // ========== 智能快捷回复 ==========
     // 优先用轻量 LLM 基于当前问答生成 3 个相关追问；失败时回落到 buildSmartQuickReplies 模板
     const fallbackReplies = buildSmartQuickReplies({
-      hasKB: ragResults.length > 0,
+      hasKB: kbConfident,
       hasWeb: usedSources.some(s => s.type === "web"),
       query: content,
     });

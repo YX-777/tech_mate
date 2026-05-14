@@ -1,0 +1,24 @@
+{"id":"d01","question":"什么是 React 的并发渲染？","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d02","question":"解释一下 RRF 融合的原理","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d03","question":"Next.js App Router 和 Pages Router 有什么区别","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d04","question":"什么是 Function Calling","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d05","question":"LangGraph 和普通 Chain 有什么不同","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d06","question":"TypeScript 泛型约束怎么写","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d07","question":"怎么排查 Node.js 内存泄漏","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d08","question":"SSE 和 WebSocket 有什么区别","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d09","question":"什么是向量数据库","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d10","question":"BGE-M3 重排是怎么工作的","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d11","question":"如何用 Prisma 做数据库迁移","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d12","question":"什么是 OpenTelemetry","expect_kb":true,"expect_web":false,"tag":"concept"}
+{"id":"d13","question":"拼多多 2026 年最新营收是多少","expect_kb":false,"expect_web":true,"tag":"timeliness"}
+{"id":"d14","question":"2026 年最火的前端框架是什么","expect_kb":false,"expect_web":true,"tag":"timeliness"}
+{"id":"d15","question":"Next.js 15 正式版的发布日期","expect_kb":false,"expect_web":true,"tag":"timeliness"}
+{"id":"d16","question":"今天 OpenAI 有什么新闻","expect_kb":false,"expect_web":true,"tag":"timeliness"}
+{"id":"d17","question":"苹果最新一代 M 系列芯片性能如何","expect_kb":false,"expect_web":true,"tag":"timeliness"}
+{"id":"d18","question":"2026 年 AI Agent 领域有哪些新进展","expect_kb":false,"expect_web":true,"tag":"timeliness"}
+{"id":"d19","question":"你好","expect_kb":false,"expect_web":false,"tag":"chitchat"}
+{"id":"d20","question":"谢谢你的帮助","expect_kb":false,"expect_web":false,"tag":"chitchat"}
+{"id":"d21","question":"讲个笑话听听","expect_kb":false,"expect_web":false,"tag":"chitchat"}
+{"id":"d22","question":"我最近学得好累，有点想放弃了","expect_kb":false,"expect_web":false,"tag":"emotion"}
+{"id":"d23","question":"面试又挂了，好挫败","expect_kb":false,"expect_web":false,"tag":"emotion"}
+{"id":"d24","question":"压力好大，焦虑得睡不着","expect_kb":false,"expect_web":false,"tag":"emotion"}

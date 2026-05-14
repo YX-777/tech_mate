@@ -323,6 +323,24 @@ model AgentEventLog {
   @@map("agent_event_log")
 }
 
+/// 页面访问埋点：无登录场景下用 visitorId（浏览器 localStorage 号码牌）区分访客。
+/// 只记录 UA，不存原始 IP；isBot 标记爬虫，看板默认过滤。fire-and-forget 写入，不阻塞。
+model PageView {
+  id         String   @id @default(uuid())
+  visitorId  String   @map("visitor_id")    // 匿名访客号码牌（浏览器级身份）
+  userId     String?  @map("user_id")        // 登录身份，当前恒为 default-user，为将来接登录留口
+  path       String                          // 访问路径
+  referrer   String?                         // 来源页
+  userAgent  String?  @map("user_agent")     // 设备 / 浏览器
+  isBot      Boolean  @default(false) @map("is_bot")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([visitorId, createdAt(sort: Desc)])
+  @@index([path])
+  @@index([createdAt(sort: Desc)])
+  @@map("page_views")
+}
+
 /// 元记忆：用户画像 + 技能图谱聚合
 model MetaMemory {
   id              String   @id @default(uuid())

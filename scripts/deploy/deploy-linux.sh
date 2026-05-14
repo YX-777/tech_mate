@@ -77,6 +77,17 @@ rm -rf packages/web/.next 2>/dev/null || true
 pnpm install
 echo "   依赖已安装"
 
+# 强制重建 better-sqlite3 native binding（langgraph SqliteSaver 依赖）
+# pnpm 10+ 默认拦截 install scripts，靠 root package.json 的 onlyBuiltDependencies 白名单放行
+# 这里再显式 rebuild 一次兜底，确保 .node binding 生成
+echo "   🔨 重建 better-sqlite3 native binding..."
+pnpm rebuild better-sqlite3 2>&1 | tail -3 || true
+if find node_modules/.pnpm/better-sqlite3* -name "better_sqlite3.node" 2>/dev/null | head -1 | grep -q .; then
+  echo "   ✅ better-sqlite3 native binding OK"
+else
+  echo "   ⚠️  better-sqlite3 native binding 缺失，LangGraph 会 fallback 到 MemorySaver"
+fi
+
 # 生成 Prisma Client
 cd packages/database && npx prisma generate && cd ..
 echo "   Prisma Client 已生成"

@@ -11,6 +11,7 @@ import {
   checkOutput,
 } from "@tech-mate/agent-langgraph";
 import { getDatabase } from "@/lib/database";
+import { buildGuardrailSummary } from "@/lib/guardrail-summary";
 import { getAgentStateRepository, getPrismaClient, getTaskService } from "@tech-mate/database";
 import {
   buildStateKey,
@@ -366,14 +367,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // 兼容多种请求格式：
-    // 1. 旧格式：{ message, userId, conversationId }
+    // 1. 旧格式：{ message, userId, conversationId }   ← Web 前端当前实际走这条
     // 2. AI SDK text 格式：{ text, userId, conversationId }
     // 3. AI SDK messages 格式：{ messages, userId, conversationId, trigger }
+    //
+    // ⚠️ 架构约定（勿改）：本服务是「服务端权威会话状态」——历史对话由后端
+    //   getCachedState / DB 回源重建（见下方 loadState 链路），前端只发当前这一条 message。
+    //   严禁为了"让前端带上历史"而改动这里：那会重新引入客户端可篡改的历史，并会
+    //   回退已修复的 context-bleed 串话问题（历史控制必须留在服务端单一事实源）。
     let message: string | undefined;
     const userId = body.userId;
     const conversationId = body.conversationId || body.id;
 
-    // 从 messages 数组提取最新用户消息
+    // 从 messages 数组提取最新用户消息（AI SDK 数组格式兼容入口；当前 Web 前端不触发此分支）
     if (body.messages && Array.isArray(body.messages)) {
       const lastMessage = body.messages[body.messages.length - 1];
       if (lastMessage?.role === "user") {
@@ -740,8 +746,11 @@ export async function POST(request: NextRequest) {
             // ========== GuardRail L3：输出验证（先跑，再持久化，保证 traceId 和 guardrail 一起入库）==========
             // 关键：corpus 用 detail（真实文档内容）+ title 拼接，不要只传 title，
             //      否则 factCoverage 永远算不到知识库正文，长期 0% 误报。
+            // P1 修复：web 来源也要喂进 L3 事实交叉验证。
+            // 之前只取 kb（"rag" 这个 type 根本不存在），导致联网回答永远 hasRagContext=false，
+            // L3 直接跳过、factCoverage 写死 1.0 —— 这是"摆设"问题的根因所在。
             const ragSnippets = (sources || [])
-              .filter((s: any) => s?.type === "kb" || s?.type === "rag")
+              .filter((s: any) => s?.type === "kb" || s?.type === "web")
               .map((s: any) => ({
                 content: [s.detail, s.title].filter(Boolean).join("\n") || "",
                 title: s.title,
@@ -755,26 +764,39 @@ export async function POST(request: NextRequest) {
               conversationId: effectiveConversationId,
             }));
 
-            // 从 trace 里聚合 L2 工具拦截事件（tool-guard 写到 span attributes）
-            const l2Blocks = trace.allSpans
-              .filter((s: any) => s.name === "guardrail.tool" && s.status === "error")
-              .map((s: any) => ({
-                tool: s.attributes?.tool,
-                maxRisk: s.attributes?.maxRisk,
-                hits: Array.isArray(s.attributes?.hitsDetail) ? s.attributes.hitsDetail : [],
-              }));
-
-            // GuardRail 三层结果摘要 —— 同步写 message.metadata（刷新页面也能看到徽章+跳转 trace）
-            const guardrailSummary = {
-              input: { passed: l1.passed, hits: l1.hits.length, maxRisk: l1.maxRisk },
-              tool: { blocks: l2Blocks, count: l2Blocks.length },
-              output: {
+            // ===== GuardRail 统一三态摘要 =====
+            // route 只负责"从 trace span + l1 + l3 采原始信号"，三态推导交给
+            // buildGuardrailSummary 纯函数（单一来源、确定性可单测，见 lib/guardrail-summary.ts）。
+            const l2Spans = trace.allSpans.filter((s: any) => s.name === "guardrail.tool");
+            const inputBlockSpan = trace.allSpans.find(
+              (s: any) => s.name === "guardrail.input" && s.status === "error"
+            );
+            const guardrailSummary = buildGuardrailSummary({
+              inputBlock: inputBlockSpan
+                ? {
+                    reason: inputBlockSpan.attributes?.reason,
+                    maxRisk: inputBlockSpan.attributes?.maxRisk,
+                  }
+                : null,
+              l1: { hitCount: l1.hits.length, maxRisk: l1.maxRisk, action: l1.action },
+              l2: {
+                ran: l2Spans.length > 0,
+                blocks: l2Spans
+                  .filter((s: any) => s.status === "error")
+                  .map((s: any) => ({
+                    tool: s.attributes?.tool,
+                    maxRisk: s.attributes?.maxRisk,
+                    hits: Array.isArray(s.attributes?.hitsDetail) ? s.attributes.hitsDetail : [],
+                  })),
+              },
+              l3: {
+                applied: l3.metadata?.applied,
                 passed: l3.passed,
-                hits: l3.hits.length,
+                hitCount: l3.hits.length,
                 similarity: l3.metadata?.similarity,
                 factCoverage: l3.metadata?.factCoverage,
               },
-            };
+            });
 
             // ========== Span: 消息存储 ==========
             const storageSpan = trace.startSpan("message_storage");

@@ -1,0 +1,30 @@
+{"id":"q01","category":"Agent","question":"AI Agent 和普通 LLM 对话有什么本质区别？","expected_doc_ids":["doc-1"],"expected_keywords":["自主决策","工具调用","循环执行"]}
+{"id":"q02","category":"Agent","question":"Function Calling 是什么？它的完整工作流程是怎样的？","expected_doc_ids":["doc-3","doc-25"],"expected_keywords":["工具注册","参数解析","Schema"]}
+{"id":"q03","category":"Agent","question":"ReAct 推理模式的工作机制是什么？","expected_doc_ids":["doc-5"],"expected_keywords":["Reason","Act","推理","行动"]}
+{"id":"q04","category":"Agent","question":"多 Agent 系统是如何协作的？","expected_doc_ids":["doc-6"],"expected_keywords":["多 Agent","协作","角色"]}
+{"id":"q05","category":"Agent","question":"Agent 的记忆机制有哪些类型？怎么实现？","expected_doc_ids":["doc-7","doc-26"],"expected_keywords":["短期记忆","长期记忆","Memory"]}
+{"id":"q06","category":"Agent","question":"Agent 的规划能力（Planning）是如何实现的？","expected_doc_ids":["doc-8"],"expected_keywords":["规划","Planning","任务分解"]}
+{"id":"q07","category":"Agent","question":"LangChain 里有哪几种 Agent 类型？它们有什么区别？","expected_doc_ids":["doc-4","doc-2"],"expected_keywords":["ReAct Agent","OpenAI Functions"]}
+{"id":"q08","category":"Agent","question":"Agent 在生产环境中有哪些实战应用场景？","expected_doc_ids":["doc-10"],"expected_keywords":["客服","数据分析","实战"]}
+{"id":"q09","category":"RAG","question":"RAG 的核心原理是什么？为什么需要它？","expected_doc_ids":["doc-11"],"expected_keywords":["检索","增强","生成","知识库"]}
+{"id":"q10","category":"RAG","question":"RAG 检索的完整流程包括哪些步骤？","expected_doc_ids":["doc-12"],"expected_keywords":["切片","embedding","召回","生成"]}
+{"id":"q11","category":"RAG","question":"Chroma、Pinecone、Milvus 这些向量数据库有什么区别？","expected_doc_ids":["doc-13"],"expected_keywords":["Chroma","Pinecone","Milvus"]}
+{"id":"q12","category":"RAG","question":"向量检索是如何计算文本相似度的？","expected_doc_ids":["doc-14"],"expected_keywords":["embedding","余弦","相似度"]}
+{"id":"q13","category":"RAG","question":"BM25 算法是什么？怎么计算的？","expected_doc_ids":["doc-15"],"expected_keywords":["BM25","词频","IDF"]}
+{"id":"q14","category":"RAG","question":"混合检索（Hybrid）怎么把向量和 BM25 融合？什么是 RRF？","expected_doc_ids":["doc-16"],"expected_keywords":["Hybrid","RRF","融合"]}
+{"id":"q15","category":"RAG","question":"为什么 RAG 需要 reranking 重排？怎么做的？","expected_doc_ids":["doc-17"],"expected_keywords":["重排","reranking","BGE"]}
+{"id":"q16","category":"RAG","question":"RAG 检索效果不好怎么优化？","expected_doc_ids":["doc-22","doc-21"],"expected_keywords":["优化","召回","精度"]}
+{"id":"q17","category":"RAG","question":"LlamaIndex 是什么？和 LangChain 有什么区别？","expected_doc_ids":["doc-18","doc-19"],"expected_keywords":["LlamaIndex","RAG","LangChain"]}
+{"id":"q18","category":"RAG","question":"怎么构建一个高质量的知识库？","expected_doc_ids":["doc-20"],"expected_keywords":["切片","chunk","构建"]}
+{"id":"q19","category":"LangChain","question":"LangChain 框架的核心抽象有哪些？","expected_doc_ids":["doc-23"],"expected_keywords":["Chain","Tool","Memory","Prompt"]}
+{"id":"q20","category":"LangChain","question":"LangChain Chain 的几种编排模式分别用在什么场景？","expected_doc_ids":["doc-24"],"expected_keywords":["SequentialChain","RouterChain","编排"]}
+{"id":"q21","category":"LangChain","question":"LangGraph 和普通 LangChain Chain 有什么区别？","expected_doc_ids":["doc-28"],"expected_keywords":["LangGraph","StateGraph","状态图"]}
+{"id":"q22","category":"LangChain","question":"LangSmith 怎么调试 LangChain 应用？","expected_doc_ids":["doc-29"],"expected_keywords":["LangSmith","调试","trace"]}
+{"id":"q23","category":"LangChain","question":"LCEL 是什么？怎么用管道语法编排？","expected_doc_ids":["doc-30"],"expected_keywords":["LCEL","管道","Runnable"]}
+{"id":"q24","category":"LangChain","question":"LangChain Prompt Template 怎么使用？","expected_doc_ids":["doc-27"],"expected_keywords":["PromptTemplate","变量","模板"]}
+{"id":"q25","category":"LangChain","question":"LangChain 生产环境部署有哪些最佳实践？","expected_doc_ids":["doc-31"],"expected_keywords":["生产","最佳实践","缓存"]}
+{"id":"q26","category":"LLM","question":"大模型的几个核心概念是什么？什么是参数、token、context？","expected_doc_ids":["doc-32"],"expected_keywords":["参数","token","上下文"]}
+{"id":"q27","category":"LLM","question":"Prompt Engineering 有哪些常用技巧？","expected_doc_ids":["doc-33"],"expected_keywords":["Few-shot","Chain-of-Thought","CoT"]}
+{"id":"q28","category":"LLM","question":"大模型 token 限制超了怎么办？","expected_doc_ids":["doc-34","doc-37"],"expected_keywords":["token","截断","摘要"]}
+{"id":"q29","category":"LLM","question":"大模型为什么会幻觉？怎么缓解？","expected_doc_ids":["doc-35"],"expected_keywords":["幻觉","hallucination","RAG"]}
+{"id":"q30","category":"LLM","question":"什么时候用微调，什么时候用 RAG？","expected_doc_ids":["doc-36"],"expected_keywords":["微调","fine-tune","RAG"]}

@@ -59,6 +59,28 @@ echo ""
 echo "4️⃣  安装依赖..."
 pnpm install
 
+# 4.0 强制重建 better-sqlite3 native binding（langgraph SqliteSaver 依赖）
+#     pnpm 10+ 默认拦截 install scripts，靠 root package.json 的
+#     pnpm.onlyBuiltDependencies 白名单放行。这里再显式 rebuild 一次兜底，
+#     避免架构变化（如 x86→arm 迁移）或缺失 build-essential 导致 .node 没生成。
+#     缺了 native binding 不会让服务挂（已 try/catch fallback 到 MemorySaver），
+#     但 LangGraph 真持久化能力会退化，所以必须保 native build 成功
+echo "   🔨 重建 better-sqlite3 native binding..."
+if ! command -v gcc &>/dev/null || ! command -v make &>/dev/null; then
+  echo "   ⚠️  缺 build-essential，尝试安装..."
+  apt install -y build-essential python3 || true
+fi
+pnpm rebuild better-sqlite3 2>&1 | tail -5 || true
+# 校验：native binding 文件确实存在
+BSQLITE_BINDING=$(find node_modules/.pnpm/better-sqlite3* -name "better_sqlite3.node" 2>/dev/null | head -1)
+if [ -n "$BSQLITE_BINDING" ]; then
+  echo "   ✅ better-sqlite3 native binding OK: $BSQLITE_BINDING"
+else
+  echo "   ⚠️  better-sqlite3 native binding 缺失"
+  echo "      LangGraph 会 fallback 到 MemorySaver（功能可用但不持久化）"
+  echo "      手动修复: cd node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3 && npm run install"
+fi
+
 # 4.1 兜底校验 workspace symlink（Next.js transpilePackages 需要直接读源码）
 echo ""
 echo "   🔍 校验 workspace symlink..."

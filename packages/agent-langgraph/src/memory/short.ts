@@ -26,6 +26,17 @@ export interface DecayResult {
   reason: string;
 }
 
+/**
+ * 艾宾浩斯式遗忘曲线 —— **单一来源**。
+ * 保持度 = 0.5^(已过天数 / 半衰期)。
+ * 短期记忆归档(本文件)与模块复习推荐(review-recommender)共用这同一条曲线，
+ * 所以简历"艾宾浩斯衰减推荐复习"和记忆衰减是同一套数学，不是两套。
+ */
+export function ebbinghausRetention(daysElapsed: number, halfLifeDays: number): number {
+  if (halfLifeDays <= 0) return 0;
+  return Math.pow(0.5, Math.max(0, daysElapsed) / halfLifeDays);
+}
+
 export class ShortMemoryDecayCalculator {
   // 半衰期：7 天（记忆强度每 7 天衰减一半）
   private HALF_LIFE_DAYS = 7;
@@ -49,8 +60,8 @@ export class ShortMemoryDecayCalculator {
     const daysSinceCreation = this.daysBetween(memory.createdAt, new Date());
     const daysSinceAccess = this.daysBetween(memory.lastAccessedAt, new Date());
 
-    // 基础衰减：指数衰减
-    const baseDecay = Math.pow(0.5, daysSinceCreation / this.HALF_LIFE_DAYS);
+    // 基础衰减：指数衰减（复用单一来源 ebbinghausRetention）
+    const baseDecay = ebbinghausRetention(daysSinceCreation, this.HALF_LIFE_DAYS);
 
     // 访问强化：每次访问增加 0.1 新鲜度（最多增加 0.5）
     const accessBoost = Math.min(memory.accessCount * 0.1, 0.5);

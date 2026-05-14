@@ -56,6 +56,15 @@ init_chroma.py
 
 # ChromaDB 数据存储
 data/
+# 但 scripts/data/ 是工具脚本目录（init / export / import），需要进 git
+!scripts/data/
+!scripts/data/*.py
+!scripts/data/*.sh
+!scripts/data/*.md
+# 数据快照（大文件）不进 git
+scripts/data/*.jsonl
+scripts/data/*.tar.gz
+scripts/data/*.zip
 
 # SQLite 数据库文件
 *.db
@@ -67,3 +76,4 @@ logs/traces/
 # Claude Code 本地配置（个人化命令白名单等，不入库）
 .claude/settings.local.json
 stash/
+.trae/

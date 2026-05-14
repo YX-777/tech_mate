@@ -22,6 +22,7 @@ import {
   type Message,
   type InstantMemorySlice,
 } from "./index";
+import { withSpan } from "../otel/instrumentation";
 
 export interface FusedMemoryContext {
   instant: InstantMemorySlice;
@@ -43,44 +44,83 @@ export class MemoryFusionRetriever {
    * 5. 融合：按权重拼接上下文，提供给 Agent
    */
   async retrieve(userId: string, query: string, messages: Message[]): Promise<FusedMemoryContext> {
-    console.log("[Memory] 开始四层记忆融合检索");
-    console.log(`[Memory] 用户: ${userId}`);
-    console.log(`[Memory] 查询: "${query.slice(0, 50)}..."`);
+    // 父 span：整个四阶融合可在 Trace Viewer 瀑布图回溯（与 guardrail/rag span 同套机制，
+    // withSpan 无 trace 上下文时自动降级直跑，纯观测、零行为风险）。
+    return withSpan(
+      "memory.fusion",
+      async (fusionSpan) => {
+        console.log("[Memory] 开始四层记忆融合检索");
+        console.log(`[Memory] 用户: ${userId}`);
+        console.log(`[Memory] 查询: "${query.slice(0, 50)}..."`);
 
-    // 1-4: 四个 retriever 独立、无依赖，全部并行检索
-    // instant 是内存操作几乎瞬时；short/meta 走 SQLite；long 走 ChromaDB 向量检索
-    // 串行总耗时 ≈ 各项相加；并行后 ≈ max(各项) ≈ 长期记忆耗时
-    const t0 = Date.now();
-    const [instantMemory, shortMemory, longMemory, metaMemory] = await Promise.all([
-      this.getInstantMemory(messages),
-      this.getShortMemory(userId, query),
-      this.getLongMemory(userId, query),
-      this.getMetaMemory(userId),
-    ]);
-    console.log(`[Memory] 4 路并行检索完成 ${Date.now() - t0}ms`);
-    console.log(`[Memory] 瞬时记忆: ${instantMemory.messages.length} 条消息`);
-    console.log(`[Memory] 短期记忆: ${shortMemory.length} 条相关记忆`);
-    shortMemory.slice(0, 3).forEach((m: any) => {
-      console.log(`  - ${m.topicTags || "无话题"}: 新鲜度=${(m.freshnessScore || 0).toFixed(2)}`);
-    });
-    console.log(`[Memory] 长期记忆: ${longMemory.length} 条相关经验`);
-    longMemory.slice(0, 3).forEach((m: any) => {
-      console.log(`  - 权重=${(m.metadata?.weight || 0).toFixed(2)}, 分数=${m.score.toFixed(2)}`);
-    });
-    console.log(`[Memory] 元记忆: 强项=${metaMemory.strongAreas?.join(",") || "暂无"}, 弱项=${metaMemory.weakAreas?.join(",") || "暂无"}`);
-    console.log(`[Memory] 元记忆: 学习风格=${metaMemory.learningStyle || "未知"}, 连续学习=${metaMemory.consecutiveDays || 0}天`);
+        // 1-4: 四个 retriever 独立、无依赖，全部并行检索；各自一个子 span，
+        // 瀑布图能看清四阶各自真实延迟（瞬时≈0ms / 短期·元 SQLite / 长期 Chroma 通常是瓶颈）
+        const t0 = Date.now();
+        const [instantMemory, shortMemory, longMemory, metaMemory] = await Promise.all([
+          withSpan("memory.instant", async (s) => {
+            const r = await this.getInstantMemory(messages);
+            s?.setAttributes({ messages: r.messages.length, tokens: r.tokenCount });
+            return r;
+          }),
+          withSpan("memory.short", async (s) => {
+            const r = await this.getShortMemory(userId, query);
+            s?.setAttributes({ count: r.length, topFreshness: r[0]?.freshnessScore ?? null });
+            return r;
+          }),
+          withSpan("memory.long", async (s) => {
+            const r = await this.getLongMemory(userId, query);
+            s?.setAttributes({ count: r.length, topScore: r[0]?.score ?? null });
+            return r;
+          }),
+          withSpan("memory.meta", async (s) => {
+            const r = await this.getMetaMemory(userId);
+            s?.setAttributes({
+              strong: (r.strongAreas || []).length,
+              weak: (r.weakAreas || []).length,
+              learningStyle: r.learningStyle || "未知",
+              hasNickname: !!r.nickname,
+            });
+            return r;
+          }),
+        ]);
+        const parallelMs = Date.now() - t0;
+        console.log(`[Memory] 4 路并行检索完成 ${parallelMs}ms`);
+        console.log(`[Memory] 瞬时记忆: ${instantMemory.messages.length} 条消息`);
+        console.log(`[Memory] 短期记忆: ${shortMemory.length} 条相关记忆`);
+        shortMemory.slice(0, 3).forEach((m: any) => {
+          console.log(`  - ${m.topicTags || "无话题"}: 新鲜度=${(m.freshnessScore || 0).toFixed(2)}`);
+        });
+        console.log(`[Memory] 长期记忆: ${longMemory.length} 条相关经验`);
+        longMemory.slice(0, 3).forEach((m: any) => {
+          console.log(`  - 权重=${(m.metadata?.weight || 0).toFixed(2)}, 分数=${m.score.toFixed(2)}`);
+        });
+        console.log(`[Memory] 元记忆: 强项=${metaMemory.strongAreas?.join(",") || "暂无"}, 弱项=${metaMemory.weakAreas?.join(",") || "暂无"}`);
+        console.log(`[Memory] 元记忆: 学习风格=${metaMemory.learningStyle || "未知"}, 连续学习=${metaMemory.consecutiveDays || 0}天`);
 
-    // 5. 融合：按权重拼接上下文
-    const fusedContext = this.fuseContexts(instantMemory, shortMemory, longMemory, metaMemory);
-    console.log(`[Memory] 融合后上下文长度: ${fusedContext.length} 字符`);
+        // 5. 融合：按权重拼接上下文
+        const fusedContext = this.fuseContexts(instantMemory, shortMemory, longMemory, metaMemory);
+        console.log(`[Memory] 融合后上下文长度: ${fusedContext.length} 字符`);
 
-    return {
-      instant: instantMemory,
-      short: shortMemory,
-      long: longMemory,
-      meta: metaMemory,
-      fusedContext,
-    };
+        fusionSpan?.setAttributes({
+          instant: instantMemory.messages.length,
+          short: shortMemory.length,
+          long: longMemory.length,
+          metaStrong: (metaMemory.strongAreas || []).length,
+          metaWeak: (metaMemory.weakAreas || []).length,
+          fusedLength: fusedContext.length,
+          parallelMs,
+        });
+
+        return {
+          instant: instantMemory,
+          short: shortMemory,
+          long: longMemory,
+          meta: metaMemory,
+          fusedContext,
+        };
+      },
+      { userId, queryLength: query.length }
+    );
   }
 
   /**
@@ -191,11 +231,12 @@ export class MemoryFusionRetriever {
    * 按权重拼接各层记忆，构建 Agent 能理解的上下文：
    * - 元记忆作为系统提示的一部分（用户画像）
    * - 长期记忆作为知识背景（相关经验）
-   * - 短期记忆作为近期话题（最近聊过什么）
-   * - 瞬时记忆作为当前对话（正在说什么）
+   * - 短期记忆作为近期话题（topic 标签摘要）
+   * 注：瞬时记忆（当前对话原文）**不再**进此块——已在 LLM message 历史里，
+   *     重复注入会拔高旧话题导致串话，故 _instant 仅占位不序列化。
    */
   private fuseContexts(
-    instant: InstantMemorySlice,
+    _instant: InstantMemorySlice,
     short: any[],
     long: any[],
     meta: any
@@ -221,24 +262,30 @@ export class MemoryFusionRetriever {
       context += "\n";
     }
 
-    // 短期记忆作为近期话题
+    // 短期记忆 → 只给"聊过哪些话题"的**标签**，绝不带原文片段。
+    // 串话修复(2026-05)：原来每条还带 content.slice(50) 原文，turn1 闭包问答
+    // 被持久化进短期记忆后，turn2 又把闭包原文回灌进 🧠 块 → 串话残留通道之一。
+    // 标签(如"闭包、React")用于个性化足够；原文是 message 历史的职责，不在此重复。
     if (short.length > 0) {
-      context += "【近期话题】\n";
-      short.slice(0, 3).forEach((m: any) => {
-        const topics = m.topicTags ? JSON.parse(m.topicTags) : [];
-        context += `- ${topics.join(", ") || "无话题"}: ${m.content?.slice(0, 50) || "无内容"}\n`;
-      });
-      context += "\n";
+      const tags = Array.from(
+        new Set(
+          short
+            .slice(0, 5)
+            .flatMap((m: any) => (m.topicTags ? JSON.parse(m.topicTags) : []))
+        )
+      ).filter(Boolean);
+      if (tags.length > 0) {
+        context += `【近期聊过的话题（仅供个性化参考，不是本轮主题来源）】${tags.join("、")}\n\n`;
+      }
     }
 
-    // 瞬时记忆作为当前对话（已裁剪）
-    if (instant.messages.length > 0) {
-      context += "【当前对话】\n";
-      instant.messages.slice(-3).forEach((m: any) => {
-        const role = m.role === "user" ? "用户" : m.role === "assistant" ? "助手" : "系统";
-        context += `- ${role}: ${m.content?.slice(0, 100) || "无内容"}\n`;
-      });
-    }
+    // ⚠️ 串话修复（2026-05）：不再把 instant 最近消息原文塞进 fusedContext。
+    // 原因：那些消息已在 LLM message 数组(historyForLLM)里、由 buildAnswerRules
+    // 第1条管辖；再复制进 system prompt 的"🧠 对话记忆"块 = 重复 + 把上一轮
+    // 旧话题正文拔高成"记忆/画像"，prominence 盖过当前问题与检索证据，导致
+    // "问 LangGraph 答上一轮闭包"的串话。当前对话内容由 message 历史承载，
+    // 记忆块只保留跨会话画像/事实/话题标签，不复读原文。
+    // （已核验：generalQANode 未用 fusedContext；stream 路径另传 history，安全）
 
     return context;
   }

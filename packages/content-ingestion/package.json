@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "ingest": "tsx src/cli.ts",
-    "bootstrap": "tsx scripts/bootstrap-300.ts"
+    "bootstrap": "tsx scripts/bootstrap-300.ts",
+    "bootstrap:round2": "tsx scripts/bootstrap-round2.ts"
   },
   "dependencies": {
     "@tech-mate/core": "workspace:*",

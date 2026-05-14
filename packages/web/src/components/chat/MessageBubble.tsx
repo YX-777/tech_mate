@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Tooltip, message as antdMessage } from "antd";
 import { CopyOutlined, CheckOutlined } from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { motion, AnimatePresence } from "framer-motion";
-import { Message, UsedSource, ExecutionStep, GuardRailSummary } from "@/types";
+import { Message, UsedSource, ExecutionStep, GuardRailSummary, GuardLayerResult, GuardLayerState } from "@/types";
+import { normalizeGuard } from "@/lib/guardrail-summary";
 import "highlight.js/styles/github.css";
 
 interface MessageBubbleProps {
@@ -156,12 +157,44 @@ function ExecutionStepsSection({
 /**
  * 参考来源组件 — 默认折叠，仅展示 kb / web，不透出 memory（内部机制）
  */
-function SourcesSection({ sources }: { sources: UsedSource[] }) {
+function SourcesSection({
+  sources,
+  highlightN,
+  highlightNonce,
+}: {
+  sources: UsedSource[];
+  highlightN?: number | null;
+  highlightNonce?: number;
+}) {
   // 过滤掉 memory，仅显示 kb + web
   const visible = sources.filter(s => s.type !== "memory");
   const [expanded, setExpanded] = useState(false);  // 默认折叠
+  const [flashN, setFlashN] = useState<number | null>(null);
+
+  // P5：行内 [n] 角标被点击 → 展开 + 滚动 + 高亮第 n 条
+  useEffect(() => {
+    if (highlightNonce === undefined || !highlightN) return;
+    setExpanded(true);
+    setFlashN(highlightN);
+    const t1 = setTimeout(() => {
+      document
+        .getElementById(`src-cite-${highlightN}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 240);
+    const t2 = setTimeout(() => setFlashN(null), 1800);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [highlightNonce, highlightN]);
 
   if (visible.length === 0) return null;
+
+  // 全局编号：与后端 prompt 里给模型的 citableSources 顺序严格一致
+  // （usedSources 去掉 memory 后的下标 +1），保证 [n] ↔ 卡片一一对应
+  const numberOf = new Map<UsedSource, number>();
+  visible.forEach((s, i) => numberOf.set(s, i + 1));
+  const isOpen = expanded;
 
   const groups = {
     kb: visible.filter(s => s.type === "kb"),
@@ -198,7 +231,7 @@ function SourcesSection({ sources }: { sources: UsedSource[] }) {
       }}
     >
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={() => setExpanded(!isOpen)}
         style={{
           width: "100%",
           padding: "10px 14px",
@@ -214,11 +247,11 @@ function SourcesSection({ sources }: { sources: UsedSource[] }) {
         <span style={{ color: "#6b7280", fontWeight: 500 }}>
           📎 参考来源 ({visible.length}) · {summary}
         </span>
-        <span style={{ fontSize: 11, color: "#9ca3af" }}>{expanded ? "收起 ▲" : "展开 ▼"}</span>
+        <span style={{ fontSize: 11, color: "#9ca3af" }}>{isOpen ? "收起 ▲" : "展开 ▼"}</span>
       </button>
 
       <AnimatePresence initial={false}>
-        {expanded && (
+        {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -239,17 +272,21 @@ function SourcesSection({ sources }: { sources: UsedSource[] }) {
                     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                       {list.map((s, i) => {
                         const host = hostFromUrl(s.url);
+                        const num = numberOf.get(s);
+                        const flash = flashN != null && flashN === num;
+                        const anchorId = typeof num === "number" ? `src-cite-${num}` : undefined;
                         const inner = (
                           <div
                             style={{
                               padding: "8px 10px",
                               borderRadius: 6,
-                              background: "#fff",
-                              border: `1px solid ${m.border}`,
+                              background: flash ? "#faf5ff" : "#fff",
+                              border: `1px solid ${flash ? "#c084fc" : m.border}`,
+                              boxShadow: flash ? "0 0 0 3px rgba(168,85,247,0.25)" : "none",
                               fontSize: 13,
                               lineHeight: 1.5,
                               cursor: s.url ? "pointer" : "default",
-                              transition: "all 0.15s",
+                              transition: "all 0.2s",
                             }}
                           >
                             <div
@@ -263,6 +300,24 @@ function SourcesSection({ sources }: { sources: UsedSource[] }) {
                                 WebkitBoxOrient: "vertical",
                               }}
                             >
+                              {typeof num === "number" && (
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    minWidth: 18,
+                                    padding: "0 5px",
+                                    marginRight: 6,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    color: "#7c3aed",
+                                    background: "#f3e8ff",
+                                    borderRadius: 5,
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {num}
+                                </span>
+                              )}
                               {s.title}
                             </div>
                             {(host || typeof s.score === "number") && (
@@ -277,6 +332,7 @@ function SourcesSection({ sources }: { sources: UsedSource[] }) {
                           return (
                             <a
                               key={`${type}-${i}`}
+                              id={anchorId}
                               href={s.url}
                               target="_blank"
                               rel="noreferrer noopener"
@@ -286,7 +342,7 @@ function SourcesSection({ sources }: { sources: UsedSource[] }) {
                             </a>
                           );
                         }
-                        return <div key={`${type}-${i}`}>{inner}</div>;
+                        return <div key={`${type}-${i}`} id={anchorId}>{inner}</div>;
                       })}
                     </div>
                   </div>
@@ -300,26 +356,44 @@ function SourcesSection({ sources }: { sources: UsedSource[] }) {
   );
 }
 
+const STATE_STYLE: Record<GuardLayerState, { icon: string; color: string }> = {
+  pass: { icon: "✅", color: "#16a34a" },
+  block: { icon: "🔴", color: "#dc2626" },
+  warn: { icon: "⚠️", color: "#d97706" },
+  skip: { icon: "⚪", color: "#6b7280" },
+};
+
 /**
- * GuardRail 三层防护徽章 —— 在 sources 下方展示
- * 命中 0 → 绿色 ✅ "已通过 3 层防护"
- * 命中 1+ → 黄色 ⚠️ 列出层级 + 命中数
+ * GuardRail 防护徽章 —— 统一三态。
+ * 设计原则：N/A 诚实标 ⚪skip 绝不伪绿；被拦截的请求标题如实显示"被拦截"，
+ * 不再把短路/拦截包装成"已通过防护"。
  */
 function GuardRailBadge({ guardrail, traceId, conversationId }: { guardrail: GuardRailSummary; traceId?: string; conversationId?: string }) {
   const [expanded, setExpanded] = useState(false);
-  const inputPassed = guardrail.input.passed;
-  const outputPassed = guardrail.output.passed;
-  const toolBlockedCount = guardrail.tool?.count ?? 0;
-  const allPassed = inputPassed && outputPassed && toolBlockedCount === 0;
+  const g = normalizeGuard(guardrail);
+  const layers: Array<{ key: string; label: string; r: GuardLayerResult }> = [
+    { key: "input", label: "L1 输入注入检测", r: g.input },
+    { key: "tool", label: "L2 工具参数校验", r: g.tool },
+    { key: "output", label: "L3 输出验证", r: g.output },
+  ];
+  const blocked = layers.find((l) => l.r.state === "block");
+  const hasWarn = layers.some((l) => l.r.state === "warn");
+  const passCount = layers.filter((l) => l.r.state === "pass").length;
+  const skipCount = layers.filter((l) => l.r.state === "skip").length;
 
-  const bg = allPassed ? "#f0fdf4" : "#fffbeb";
-  const border = allPassed ? "#bbf7d0" : "#fde68a";
-  const color = allPassed ? "#16a34a" : "#d97706";
-  const icon = allPassed ? "🛡️" : "⚠️";
-  const totalIssues = guardrail.input.hits + toolBlockedCount + guardrail.output.hits;
-  const text = allPassed
-    ? "已通过 3 层 GuardRail 防护（L1 输入 · L2 工具 · L3 输出）"
-    : `GuardRail 检测到 ${totalIssues} 项告警`;
+  // 徽章基调：被拦截=红；有告警=琥珀；其余=绿（但如实标注哪些层未运行）
+  const tone: "block" | "warn" | "ok" = blocked ? "block" : hasWarn ? "warn" : "ok";
+  const bg = tone === "block" ? "#fef2f2" : tone === "warn" ? "#fffbeb" : "#f0fdf4";
+  const border = tone === "block" ? "#fecaca" : tone === "warn" ? "#fde68a" : "#bbf7d0";
+  const color = tone === "block" ? "#dc2626" : tone === "warn" ? "#d97706" : "#16a34a";
+  const icon = tone === "block" ? "🔴" : tone === "warn" ? "⚠️" : "🛡️";
+  const text = blocked
+    ? `请求被 ${blocked.label.replace(/检测|校验|验证/, "防护")} 拦截：${blocked.r.detail || ""}`
+    : hasWarn
+      ? `GuardRail 观测到告警（${layers.filter((l) => l.r.state === "warn").reduce((n, l) => n + (l.r.hits ?? 0), 0)} 项·不阻断）`
+      : skipCount === 0
+        ? "已通过 3 层 GuardRail 防护（L1 输入 · L2 工具 · L3 输出）"
+        : `已通过 ${passCount} 层防护 · ${skipCount} 层本场景未触发（如实标注）`;
 
   return (
     <div
@@ -351,52 +425,45 @@ function GuardRailBadge({ guardrail, traceId, conversationId }: { guardrail: Gua
       </button>
       {expanded && (
         <div style={{ padding: "0 12px 10px", fontSize: 12, color: "#4b5563", display: "flex", flexDirection: "column", gap: 4 }}>
-          <div>
-            <strong>L1 输入注入检测</strong>: {inputPassed ? "✅ 通过" : `⚠️ ${guardrail.input.hits} 项 · 风险 ${guardrail.input.maxRisk}`}
-          </div>
-          <div>
-            <strong>L2 工具参数校验</strong>:{" "}
-            {toolBlockedCount === 0 ? (
-              <span>✅ 通过（Zod schema + 黑名单）</span>
-            ) : (
-              <span style={{ color: "#d97706" }}>⚠️ 拦截 {toolBlockedCount} 次工具调用</span>
-            )}
-          </div>
-          {guardrail.tool?.blocks?.map((b, i) => (
-            <div key={i} style={{ fontSize: 11, color: "#7c2d12", paddingLeft: 16, marginTop: 2 }}>
-              ❌ <code style={{ fontFamily: "monospace" }}>{b.tool}</code> · 风险 {b.maxRisk}
-              {b.hits.slice(0, 2).map((h, j) => (
-                <div key={j} style={{ paddingLeft: 16 }}>
-                  • {h.reason}
-                  {h.matchedText && (
-                    <span style={{ marginLeft: 4, padding: "1px 4px", background: "#fee2e2", borderRadius: 2, fontFamily: "monospace" }}>
-                      &ldquo;{h.matchedText.slice(0, 30)}&rdquo;
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          ))}
-          <div>
-            <strong>L3 输出验证</strong>:{" "}
-            {outputPassed ? "✅ 通过" : `⚠️ ${guardrail.output.hits} 项`}
-            {typeof guardrail.output.similarity === "number" && guardrail.output.similarity > 0 && (
-              <span>
-                {" "}· 相关性 {(guardrail.output.similarity * 100).toFixed(0)}%
-                {guardrail.output.similarity === 1 && (
-                  <span style={{ fontSize: 11, opacity: 0.7, marginLeft: 4 }}>（短问题/无 RAG 时跳过此检查）</span>
-                )}
-              </span>
-            )}
-            {typeof guardrail.output.factCoverage === "number" && (
-              <span>
-                {" "}· 事实覆盖 {(guardrail.output.factCoverage * 100).toFixed(0)}%
-                {guardrail.output.factCoverage === 1 && (
-                  <span style={{ fontSize: 11, opacity: 0.7, marginLeft: 4 }}>（无 RAG 来源时跳过此检查）</span>
-                )}
-              </span>
-            )}
-          </div>
+          {layers.map(({ key, label, r }) => {
+            const st = STATE_STYLE[r.state];
+            const tail =
+              r.state === "warn"
+                ? ` · ${r.hits ?? 0} 项`
+                : "";
+            const metrics =
+              key === "output" && (typeof r.similarity === "number" || typeof r.factCoverage === "number")
+                ? `${typeof r.similarity === "number" ? ` · 语义相关性 ${(r.similarity * 100).toFixed(0)}%` : ""}${typeof r.factCoverage === "number" ? ` · 事实覆盖 ${(r.factCoverage * 100).toFixed(0)}%` : ""}`
+                : "";
+            const riskTail =
+              key === "input" && (r.state === "warn" || r.state === "block") && r.maxRisk
+                ? ` · 风险 ${r.maxRisk}`
+                : "";
+            return (
+              <div key={key}>
+                <strong>{label}</strong>:{" "}
+                <span style={{ color: st.color }}>
+                  {st.icon} {r.detail || r.state}{tail}{riskTail}{metrics}
+                </span>
+                {key === "tool" &&
+                  r.blocks?.map((b, i) => (
+                    <div key={i} style={{ fontSize: 11, color: "#7c2d12", paddingLeft: 16, marginTop: 2 }}>
+                      ❌ <code style={{ fontFamily: "monospace" }}>{b.tool}</code> · 风险 {b.maxRisk}
+                      {b.hits.slice(0, 2).map((h, j) => (
+                        <div key={j} style={{ paddingLeft: 16 }}>
+                          • {h.reason}
+                          {h.matchedText && (
+                            <span style={{ marginLeft: 4, padding: "1px 4px", background: "#fee2e2", borderRadius: 2, fontFamily: "monospace" }}>
+                              &ldquo;{h.matchedText.slice(0, 30)}&rdquo;
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+              </div>
+            );
+          })}
           {traceId && (
             <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4, display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
               <span>Trace:</span>
@@ -423,6 +490,57 @@ function GuardRailBadge({ guardrail, traceId, conversationId }: { guardrail: Gua
 function stripReferencesSection(content: string): string {
   if (!content) return content;
   return content.replace(/\n+#{1,3}\s*[📎🔗]?\s*参考来源[\s\S]*$/u, "").trimEnd();
+}
+
+/**
+ * P5：把模型行内输出的 [n] 角标（1..count）转成 markdown 链接 [n](#cite-n)，
+ * 交给 ReactMarkdown 的 a 渲染器变成可点溯源。
+ * - 仅转 1..count，避免误伤越界数字
+ * - 跳过 ``` 代码块 / `行内代码`，防止把 arr[1] 这种下标也改了
+ */
+function linkifyCitations(content: string, count: number): string {
+  if (!content || count <= 0) return content;
+  const parts = content.split(/(```[\s\S]*?```|`[^`]*`)/g);
+  return parts
+    .map((seg, i) => {
+      if (i % 2 === 1) return seg; // 奇数段 = 捕获到的代码，原样保留
+      return seg.replace(/\[(\d{1,2})\]/g, (m, d) => {
+        const n = parseInt(d, 10);
+        return n >= 1 && n <= count ? `[${n}](#cite-${n})` : m;
+      });
+    })
+    .join("");
+}
+
+/** P5：行内引用角标，点击后展开来源区并高亮/滚动到第 n 条 */
+function CiteRef({ n, onJump }: { n: number; onJump: (n: number) => void }) {
+  return (
+    <sup style={{ lineHeight: 0 }}>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          onJump(n);
+        }}
+        title={`查看来源 ${n}`}
+        style={{
+          margin: "0 1px",
+          padding: "0 5px",
+          fontSize: 11,
+          lineHeight: "15px",
+          color: "#7c3aed",
+          background: "#f3e8ff",
+          border: "1px solid #e9d5ff",
+          borderRadius: 6,
+          cursor: "pointer",
+          fontWeight: 600,
+          verticalAlign: "super",
+        }}
+      >
+        {n}
+      </button>
+    </sup>
+  );
 }
 
 /**
@@ -701,6 +819,11 @@ function AIAvatar() {
 
 export default function MessageBubble({ message, isStreaming = false, conversationId }: MessageBubbleProps) {
   const [copied, setCopied] = useState(false);
+  // P5：行内引用跳转状态。nonce 每次点击自增 → 触发 SourcesSection 重新滚动/高亮
+  const [cite, setCite] = useState<{ n: number | null; nonce: number }>({ n: null, nonce: 0 });
+  const handleCiteJump = (n: number) => setCite((c) => ({ n, nonce: c.nonce + 1 }));
+  // 可引用来源数量（与后端 prompt 编号口径一致：usedSources 去掉 memory）
+  const citableCount = (message.sources ?? []).filter((s) => s.type !== "memory").length;
   const isUser = message.role === "user";
   const isGuardRailBlock = message.role === "system" && !!message.guardrailBlock;
 
@@ -849,8 +972,24 @@ export default function MessageBubble({ message, isStreaming = false, conversati
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeHighlight]}
+              components={{
+                a: ({ href, children, ...props }) => {
+                  if (href && href.startsWith("#cite-")) {
+                    const n = parseInt(href.slice("#cite-".length), 10);
+                    if (Number.isFinite(n)) return <CiteRef n={n} onJump={handleCiteJump} />;
+                  }
+                  return (
+                    <a href={href} target="_blank" rel="noreferrer noopener" {...props}>
+                      {children}
+                    </a>
+                  );
+                },
+              }}
             >
-              {normalizeMarkdown(stripReferencesSection(message.content))}
+              {linkifyCitations(
+                normalizeMarkdown(stripReferencesSection(message.content)),
+                citableCount,
+              )}
             </ReactMarkdown>
             {isStreaming && (
               <span className="streaming-cursor" style={{ marginLeft: 2, color: "#a78bfa" }}>▎</span>
@@ -860,7 +999,11 @@ export default function MessageBubble({ message, isStreaming = false, conversati
 
         {/* 参考来源（流式结束后） */}
         {!isStreaming && message.sources && message.sources.length > 0 && (
-          <SourcesSection sources={message.sources} />
+          <SourcesSection
+            sources={message.sources}
+            highlightN={cite.n}
+            highlightNonce={cite.nonce}
+          />
         )}
 
         {/* 🛡️ GuardRail 三层防护徽章（流式结束后） */}

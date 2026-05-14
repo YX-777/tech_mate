@@ -10,6 +10,7 @@ export { getEmotionDetector } from "./middleware/emotion-detector";
 export { getContextEnhancer } from "./middleware/context-enhancer";
 export { retrieveWithFallback, inferCategoryFromQuery } from "./utils/rag-fallback";
 export { extractAndPersistFacts, matchExplicitFacts, persistTaskCompletionFact, persistFocusCompletionFact } from "./memory/fact-extractor";
+export { getReviewRecommendations, formatReviewBlock, type ReviewItem } from "./memory/review-recommender";
 
 // GuardRail 三层防护
 export {

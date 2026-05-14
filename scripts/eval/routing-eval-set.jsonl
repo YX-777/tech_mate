@@ -1,0 +1,30 @@
+{"id":"r01","question":"帮我制定一个三个月的 React 进阶学习计划","expected_intent":"create_task","tag":"plan"}
+{"id":"r02","question":"我想系统学一下 TypeScript，给我安排个计划","expected_intent":"create_task","tag":"plan"}
+{"id":"r03","question":"帮我规划下怎么准备前端面试","expected_intent":"create_task","tag":"plan"}
+{"id":"r04","question":"给我列个 Node.js 后端入门的学习路线","expected_intent":"create_task","tag":"plan"}
+{"id":"r05","question":"我接下来该学什么，帮我排个计划","expected_intent":"create_task","tag":"plan"}
+{"id":"r06","question":"我今天有哪些学习任务？","expected_intent":"progress_tracking","tag":"progress"}
+{"id":"r07","question":"我这周的学习进度怎么样了","expected_intent":"progress_tracking","tag":"progress"}
+{"id":"r08","question":"我还有什么任务没完成？","expected_intent":"progress_tracking","tag":"progress"}
+{"id":"r09","question":"看一下我的学习掌握度","expected_intent":"progress_tracking","tag":"progress"}
+{"id":"r10","question":"我学到哪了，离目标还差多少","expected_intent":"progress_tracking","tag":"progress"}
+{"id":"r11","question":"最近学得好累，有点想放弃了","expected_intent":"emotional_support","tag":"emotion"}
+{"id":"r12","question":"感觉自己很笨，怎么都学不会算法","expected_intent":"emotional_support","tag":"emotion"}
+{"id":"r13","question":"面试又挂了，好挫败","expected_intent":"emotional_support","tag":"emotion"}
+{"id":"r14","question":"学了这么久还是很迷茫，不知道方向","expected_intent":"emotional_support","tag":"emotion"}
+{"id":"r15","question":"压力好大，焦虑得睡不着","expected_intent":"emotional_support","tag":"emotion"}
+{"id":"r16","question":"什么是 React 的并发渲染？","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r17","question":"解释一下 RRF 融合的原理","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r18","question":"Next.js App Router 和 Pages Router 有什么区别","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r19","question":"BGE-M3 重排是怎么工作的","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r20","question":"什么是 Function Calling","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r21","question":"LangGraph 和普通 Chain 有什么不同","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r22","question":"怎么排查 Node.js 内存泄漏","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r23","question":"TypeScript 泛型约束怎么写","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r24","question":"拼多多 2026 年最新营收是多少","expected_intent":"general_inquiry","tag":"qa-web"}
+{"id":"r25","question":"2026 年最火的前端框架是什么","expected_intent":"general_inquiry","tag":"qa-web"}
+{"id":"r26","question":"帮我安排个 LeetCode 刷题计划","expected_intent":"create_task","tag":"plan"}
+{"id":"r27","question":"我的算法专项练到什么程度了","expected_intent":"progress_tracking","tag":"progress"}
+{"id":"r28","question":"学不进去，特别烦躁","expected_intent":"emotional_support","tag":"emotion"}
+{"id":"r29","question":"什么是向量数据库","expected_intent":"general_inquiry","tag":"qa"}
+{"id":"r30","question":"SSE 和 WebSocket 有什么区别","expected_intent":"general_inquiry","tag":"qa"}

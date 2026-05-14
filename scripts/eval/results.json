@@ -1,0 +1,1896 @@
+{
+  "timestamp": "2026-05-14T15:42:21.046Z",
+  "evalSetSize": 30,
+  "phase1": {
+    "summary": {
+      "vector": {
+        "recallAt10": 0.9666666666666667,
+        "precisionAt5": 0.21333333333333343,
+        "mrr": 0.927037037037037
+      },
+      "hybrid": {
+        "recallAt10": 0.9166666666666666,
+        "precisionAt5": 0.21333333333333343,
+        "mrr": 0.8344444444444445
+      },
+      "full": {
+        "recallAt10": 0.9166666666666666,
+        "precisionAt5": 0.21333333333333343,
+        "mrr": 0.8344444444444445
+      }
+    },
+    "rows": [
+      {
+        "id": "q01",
+        "category": "Agent",
+        "question": "AI Agent 和普通 LLM 对话有什么本质区别？",
+        "expected": [
+          "doc-1"
+        ],
+        "vector": {
+          "ids": [
+            "doc-1",
+            "art_devto_0be2593187d0",
+            "art_githubawesome_e724458ef970",
+            "art_devto_6d34dc041555",
+            "art_devto_ed4fd5b8a1db",
+            "art_devto_8980579a01a7",
+            "art_devto_ed4341360977",
+            "doc-4",
+            "art_devto_fd0f41999139",
+            "art_devto_0943cbb9a5d2"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-1",
+            "art_ruanyfweekly_008cc7f7d558",
+            "art_devto_0be2593187d0",
+            "art_ruanyfweekly_d34c50d04a69",
+            "art_githubawesome_e724458ef970",
+            "art_ruanyfweekly_506ed80e169e",
+            "art_devto_6d34dc041555",
+            "art_devto_ed4fd5b8a1db",
+            "art_ruanyfweekly_8c5fc802145a",
+            "art_devto_8980579a01a7"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-1",
+            "art_ruanyfweekly_008cc7f7d558",
+            "art_devto_0be2593187d0",
+            "art_ruanyfweekly_d34c50d04a69",
+            "art_githubawesome_e724458ef970"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q02",
+        "category": "Agent",
+        "question": "Function Calling 是什么？它的完整工作流程是怎样的？",
+        "expected": [
+          "doc-3",
+          "doc-25"
+        ],
+        "vector": {
+          "ids": [
+            "doc-3",
+            "art_devto_c4e60e29fc7d",
+            "doc-12",
+            "art_ruanyfweekly_a200114b7afb",
+            "art_devto_bb4a20364939",
+            "art_devto_3d6747b96f9b",
+            "art_ruanyfweekly_2f7c0f131044",
+            "art_devto_e94d7f8165f9",
+            "doc-23",
+            "doc-30"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-3",
+            "art_ruanyfweekly_50d47257f548",
+            "art_devto_c4e60e29fc7d",
+            "art_ruanyf_1fe98eff7f26",
+            "doc-12",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "art_ruanyfweekly_a200114b7afb",
+            "art_ruanyfweekly_f796c53ca130",
+            "art_devto_bb4a20364939",
+            "art_ruanyfweekly_c0a7589d0495"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-3",
+            "art_ruanyfweekly_50d47257f548",
+            "art_devto_c4e60e29fc7d",
+            "art_ruanyf_1fe98eff7f26",
+            "doc-12"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q03",
+        "category": "Agent",
+        "question": "ReAct 推理模式的工作机制是什么？",
+        "expected": [
+          "doc-5"
+        ],
+        "vector": {
+          "ids": [
+            "doc-5",
+            "art_devto_9867c5bd2097",
+            "art_devto_ad558046712d",
+            "art_smashingmag_3f0f0fbb41b7",
+            "doc-36",
+            "art_ruanyfweekly_997217091dfd",
+            "art_devto_c92655bd01be",
+            "art_ruanyfweekly_07051fdd18e4",
+            "art_logrocket_6d2d57ad65b5",
+            "art_ruanyfweekly_754d0f856292"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-5",
+            "art_devto_9867c5bd2097",
+            "art_ruanyfweekly_aefd9adaea0f",
+            "art_devto_ad558046712d",
+            "art_ruanyfweekly_9c051a8d746a",
+            "art_smashingmag_3f0f0fbb41b7",
+            "art_ruanyfweekly_f796c53ca130",
+            "doc-36",
+            "art_ruanyfweekly_3ebf735d995d",
+            "art_ruanyfweekly_997217091dfd"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-5",
+            "art_devto_9867c5bd2097",
+            "art_ruanyfweekly_aefd9adaea0f",
+            "art_devto_ad558046712d",
+            "art_ruanyfweekly_9c051a8d746a"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q04",
+        "category": "Agent",
+        "question": "多 Agent 系统是如何协作的？",
+        "expected": [
+          "doc-6"
+        ],
+        "vector": {
+          "ids": [
+            "doc-6",
+            "art_devto_ad2759922157",
+            "doc-1",
+            "doc-4",
+            "doc-2",
+            "art_devto_0c27c59f057f",
+            "doc-7",
+            "art_devto_af67553961bb",
+            "doc-9",
+            "art_githubawesome_9fe44ba5d142"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-6",
+            "art_devto_ad2759922157",
+            "art_ruanyfweekly_3de84999091f",
+            "doc-1",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "doc-4",
+            "art_ruanyfweekly_b37b0e827073",
+            "doc-2",
+            "art_ruanyfweekly_687a040f91c3",
+            "art_devto_0c27c59f057f"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-6",
+            "art_devto_ad2759922157",
+            "art_ruanyfweekly_3de84999091f",
+            "doc-1",
+            "art_ruanyfweekly_8e2ab12d1637"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q05",
+        "category": "Agent",
+        "question": "Agent 的记忆机制有哪些类型？怎么实现？",
+        "expected": [
+          "doc-7",
+          "doc-26"
+        ],
+        "vector": {
+          "ids": [
+            "doc-7",
+            "art_cloudflareblog_8d6f7dbf43b7",
+            "art_devto_ed037534a07d",
+            "doc-1",
+            "art_devto_0d65559dc49b",
+            "doc-8",
+            "art_devto_2d05571941b3",
+            "doc-26",
+            "doc-4",
+            "doc-6"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-7",
+            "art_ruanyfweekly_008cc7f7d558",
+            "art_cloudflareblog_8d6f7dbf43b7",
+            "art_ruanyfweekly_5e7558ec1733",
+            "art_devto_ed037534a07d",
+            "art_ruanyfweekly_9c051a8d746a",
+            "doc-1",
+            "art_ruanyfweekly_8dc0010f1ad3",
+            "art_devto_0d65559dc49b",
+            "art_ruanyfweekly_bd25b46306cd"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-7",
+            "art_ruanyfweekly_008cc7f7d558",
+            "art_cloudflareblog_8d6f7dbf43b7",
+            "art_ruanyfweekly_5e7558ec1733",
+            "art_devto_ed037534a07d"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q06",
+        "category": "Agent",
+        "question": "Agent 的规划能力（Planning）是如何实现的？",
+        "expected": [
+          "doc-8"
+        ],
+        "vector": {
+          "ids": [
+            "doc-8",
+            "doc-1",
+            "doc-7",
+            "doc-9",
+            "art_smashingmag_e943453e00bb",
+            "doc-2",
+            "art_devto_6c87441a2db7",
+            "doc-4",
+            "doc-10",
+            "doc-6"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-8",
+            "art_ruanyfweekly_3332fcf6198c",
+            "doc-1",
+            "art_ruanyfweekly_0ec42821f89f",
+            "doc-7",
+            "art_ruanyfweekly_90d4afacccbe",
+            "doc-9",
+            "art_ruanyfweekly_de054bd93f29",
+            "art_smashingmag_e943453e00bb",
+            "art_ruanyfweekly_adcdeb7b8b58"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-8",
+            "art_ruanyfweekly_3332fcf6198c",
+            "doc-1",
+            "art_ruanyfweekly_0ec42821f89f",
+            "doc-7"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q07",
+        "category": "Agent",
+        "question": "LangChain 里有哪几种 Agent 类型？它们有什么区别？",
+        "expected": [
+          "doc-4",
+          "doc-2"
+        ],
+        "vector": {
+          "ids": [
+            "doc-4",
+            "doc-2",
+            "art_devto_cdc6131107f1",
+            "doc-19",
+            "doc-29",
+            "doc-31",
+            "art_devto_caee05b00971",
+            "art_devto_ccef45b10171",
+            "doc-23",
+            "art_devto_c96f05b9095b"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-4",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-2",
+            "art_ruanyfweekly_3604ec03c430",
+            "art_devto_cdc6131107f1",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "doc-19",
+            "art_ruanyfweekly_9c051a8d746a",
+            "doc-29",
+            "art_ruanyfweekly_e5ca22e1b5b8"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-4",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-2",
+            "art_ruanyfweekly_3604ec03c430",
+            "art_devto_cdc6131107f1"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q08",
+        "category": "Agent",
+        "question": "Agent 在生产环境中有哪些实战应用场景？",
+        "expected": [
+          "doc-10"
+        ],
+        "vector": {
+          "ids": [
+            "doc-10",
+            "doc-6",
+            "art_devto_28e74dbfa3eb",
+            "doc-4",
+            "doc-1",
+            "art_devto_89cfc5b3a1b3",
+            "art_devto_0c27c59f057f",
+            "art_smashingmag_e943453e00bb",
+            "art_devto_682645ad2573",
+            "doc-9"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-10",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-6",
+            "art_devto_28e74dbfa3eb",
+            "art_ruanyfweekly_db943c490ef9",
+            "doc-4",
+            "art_ruanyfweekly_f65451ca694c",
+            "doc-1",
+            "art_ruanyfweekly_e5ca22e1b5b8",
+            "art_devto_89cfc5b3a1b3"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-10",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-6",
+            "art_devto_28e74dbfa3eb",
+            "art_ruanyfweekly_db943c490ef9"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q09",
+        "category": "RAG",
+        "question": "RAG 的核心原理是什么？为什么需要它？",
+        "expected": [
+          "doc-11"
+        ],
+        "vector": {
+          "ids": [
+            "doc-11",
+            "doc-22",
+            "art_devto_d967d5a9e0df",
+            "art_devto_c82a558044ff",
+            "doc-12",
+            "art_devto_ade00d2920bb",
+            "doc-21",
+            "art_devto_9867c5bd2097",
+            "art_devto_cf6f6db9249f",
+            "doc-36"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-11",
+            "art_ruanyfweekly_9c051a8d746a",
+            "doc-22",
+            "art_ruanyfweekly_a57abd6b923d",
+            "art_devto_d967d5a9e0df",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "art_devto_c82a558044ff",
+            "art_ruanyfweekly_c0a7589d0495",
+            "doc-12",
+            "art_ruanyfweekly_c5a7fc4949fc"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-11",
+            "art_ruanyfweekly_9c051a8d746a",
+            "doc-22",
+            "art_ruanyfweekly_a57abd6b923d",
+            "art_devto_d967d5a9e0df"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q10",
+        "category": "RAG",
+        "question": "RAG 检索的完整流程包括哪些步骤？",
+        "expected": [
+          "doc-12"
+        ],
+        "vector": {
+          "ids": [
+            "doc-12",
+            "doc-22",
+            "doc-21",
+            "doc-11",
+            "art_devto_ac7d45396296",
+            "art_devto_d967d5a9e0df",
+            "art_devto_8c4dfd1961b7",
+            "art_devto_2c6fef196497",
+            "art_devto_cf6d533aa7df",
+            "art_devto_8e6d49b14218"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-12",
+            "doc-11",
+            "doc-16",
+            "doc-22",
+            "doc-19",
+            "doc-21",
+            "art_ruanyfweekly_7ee2a0162de5",
+            "art_devto_ac7d45396296",
+            "art_ruanyfweekly_e5ca22e1b5b8",
+            "art_devto_d967d5a9e0df"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-12",
+            "doc-11",
+            "doc-16",
+            "doc-22",
+            "doc-19"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q11",
+        "category": "RAG",
+        "question": "Chroma、Pinecone、Milvus 这些向量数据库有什么区别？",
+        "expected": [
+          "doc-13"
+        ],
+        "vector": {
+          "ids": [
+            "doc-13",
+            "art_devto_cb4f253165b4",
+            "doc-14",
+            "art_devto_ed6f4f3924bb",
+            "art_devto_4c4a411861ba",
+            "art_ruanyfweekly_2f4038122f65",
+            "art_ruanyfweekly_b381ca67ef0c",
+            "art_ruanyfweekly_996f3ee21fd3",
+            "art_ruanyfweekly_0ed5d405cef3",
+            "art_ruanyfweekly_65e972edf9a0"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-13",
+            "art_ruanyfweekly_5ba97559ae58",
+            "art_devto_cb4f253165b4",
+            "art_ruanyfweekly_694805d08717",
+            "doc-14",
+            "art_ruanyfweekly_ed2e5446fb71",
+            "art_devto_ed6f4f3924bb",
+            "art_ruanyfweekly_d34c50d04a69",
+            "art_devto_4c4a411861ba",
+            "art_ruanyfweekly_54c5c9a9e26b"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-13",
+            "art_ruanyfweekly_5ba97559ae58",
+            "art_devto_cb4f253165b4",
+            "art_ruanyfweekly_694805d08717",
+            "doc-14"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q12",
+        "category": "RAG",
+        "question": "向量检索是如何计算文本相似度的？",
+        "expected": [
+          "doc-14"
+        ],
+        "vector": {
+          "ids": [
+            "doc-14",
+            "doc-15",
+            "art_devto_d24f453965f7",
+            "doc-13",
+            "art_devto_2d6fc539f097",
+            "art_devto_cb4f253165b4",
+            "art_devto_8c6dcfb964ff",
+            "art_devto_4c4a411861ba",
+            "art_devto_cc65c798e5db",
+            "doc-16"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-14",
+            "doc-15",
+            "doc-16",
+            "art_devto_d24f453965f7",
+            "art_ruanyfweekly_d3818ad791c6",
+            "doc-13",
+            "doc-12",
+            "art_devto_2d6fc539f097",
+            "art_ruanyfweekly_9b77b2df5578",
+            "art_devto_cb4f253165b4"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-14",
+            "doc-15",
+            "doc-16",
+            "art_devto_d24f453965f7",
+            "art_ruanyfweekly_d3818ad791c6"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q13",
+        "category": "RAG",
+        "question": "BM25 算法是什么？怎么计算的？",
+        "expected": [
+          "doc-15"
+        ],
+        "vector": {
+          "ids": [
+            "doc-15",
+            "art_devto_cc65c798e5db",
+            "doc-16",
+            "art_devto_4947440fc8eb",
+            "art_devto_6365e7a1abe3",
+            "art_ruanyfweekly_00ca5238c56a",
+            "art_ruanyfweekly_996f3ee21fd3",
+            "art_ruanyfweekly_96b37bb5dee9",
+            "art_ruanyfweekly_851dfc0ec3e9",
+            "art_devto_8980579a01a7"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-15",
+            "doc-16",
+            "art_ruanyfweekly_0ec42821f89f",
+            "art_ruanyfweekly_ed2e5446fb71",
+            "art_devto_cc65c798e5db",
+            "art_ruanyfweekly_e67361de3c81",
+            "art_ruanyfweekly_64055b5b55c9",
+            "art_devto_4947440fc8eb",
+            "art_ruanyfweekly_a42e08bdd6a1",
+            "art_devto_6365e7a1abe3"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-15",
+            "doc-16",
+            "art_ruanyfweekly_0ec42821f89f",
+            "art_ruanyfweekly_ed2e5446fb71",
+            "art_devto_cc65c798e5db"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q14",
+        "category": "RAG",
+        "question": "混合检索（Hybrid）怎么把向量和 BM25 融合？什么是 RRF？",
+        "expected": [
+          "doc-16"
+        ],
+        "vector": {
+          "ids": [
+            "doc-16",
+            "doc-15",
+            "art_devto_4947440fc8eb",
+            "art_devto_6365e7a1abe3",
+            "art_devto_cc65c798e5db",
+            "art_devto_ad659f39a4ff",
+            "art_devto_8c4dfd1961b7",
+            "doc-11",
+            "doc-22",
+            "doc-12"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-16",
+            "doc-15",
+            "art_devto_4947440fc8eb",
+            "art_ruanyfweekly_008cc7f7d558",
+            "art_devto_6365e7a1abe3",
+            "art_devto_cc65c798e5db",
+            "art_ruanyfweekly_8c5fc802145a",
+            "art_devto_ad659f39a4ff",
+            "art_ruanyfweekly_8dc0010f1ad3",
+            "art_devto_8c4dfd1961b7"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-16",
+            "doc-15",
+            "art_devto_4947440fc8eb",
+            "art_ruanyfweekly_008cc7f7d558",
+            "art_devto_6365e7a1abe3"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q15",
+        "category": "RAG",
+        "question": "为什么 RAG 需要 reranking 重排？怎么做的？",
+        "expected": [
+          "doc-17"
+        ],
+        "vector": {
+          "ids": [
+            "doc-22",
+            "doc-17",
+            "doc-21",
+            "doc-11",
+            "doc-36",
+            "art_devto_d967d5a9e0df",
+            "art_devto_7d08dd1d68fb",
+            "doc-9",
+            "art_devto_9c6e558962d4",
+            "doc-12"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.5
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-22",
+            "art_ruanyfweekly_aefd9adaea0f",
+            "doc-17",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "doc-21",
+            "art_ruanyfweekly_c5a7fc4949fc",
+            "doc-11",
+            "art_ruanyfweekly_02cf496cd95d",
+            "doc-36",
+            "art_ruanyfweekly_4596a7d9d281"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.3333333333333333
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-22",
+            "art_ruanyfweekly_aefd9adaea0f",
+            "doc-17",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "doc-21"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.3333333333333333
+          }
+        }
+      },
+      {
+        "id": "q16",
+        "category": "RAG",
+        "question": "RAG 检索效果不好怎么优化？",
+        "expected": [
+          "doc-22",
+          "doc-21"
+        ],
+        "vector": {
+          "ids": [
+            "doc-22",
+            "doc-21",
+            "doc-11",
+            "art_devto_8c4dfd1961b7",
+            "art_devto_d967d5a9e0df",
+            "doc-12",
+            "doc-36",
+            "art_devto_ac7d45396296",
+            "art_devto_0c28d7b9609b",
+            "art_devto_ade00d2920bb"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-22",
+            "doc-21",
+            "doc-11",
+            "doc-12",
+            "doc-16",
+            "art_devto_8c4dfd1961b7",
+            "art_ruanyfweekly_687a040f91c3",
+            "art_devto_d967d5a9e0df",
+            "doc-19",
+            "art_ruanyfweekly_f796c53ca130"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-22",
+            "doc-21",
+            "doc-11",
+            "doc-12",
+            "doc-16"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q17",
+        "category": "RAG",
+        "question": "LlamaIndex 是什么？和 LangChain 有什么区别？",
+        "expected": [
+          "doc-18",
+          "doc-19"
+        ],
+        "vector": {
+          "ids": [
+            "doc-19",
+            "doc-18",
+            "art_devto_ddca15b969d6",
+            "doc-23",
+            "art_devto_1dc9441948f5",
+            "art_devto_cdc6131107f1",
+            "art_devto_182ed7b923f1",
+            "art_devto_0180451d0494",
+            "doc-30",
+            "doc-31"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-19",
+            "art_ruanyfweekly_076a89a282fa",
+            "doc-18",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "art_devto_ddca15b969d6",
+            "art_ruanyfweekly_a3cea3dba715",
+            "doc-23",
+            "art_ruanyfweekly_02cf496cd95d",
+            "art_devto_1dc9441948f5",
+            "art_ruanyfweekly_008cc7f7d558"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-19",
+            "art_ruanyfweekly_076a89a282fa",
+            "doc-18",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "art_devto_ddca15b969d6"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.4,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q18",
+        "category": "RAG",
+        "question": "怎么构建一个高质量的知识库？",
+        "expected": [
+          "doc-20"
+        ],
+        "vector": {
+          "ids": [
+            "doc-20",
+            "art_ruanyfweekly_68c4d14c3670",
+            "art_ruanyfweekly_692ca223e8cc",
+            "art_ruanyfweekly_b46a79c5adca",
+            "art_ruanyfweekly_b0a8e38768c4",
+            "art_ruanyfweekly_c7c995e7df03",
+            "art_ruanyfweekly_9301d4527277",
+            "art_ruanyfweekly_8254711feb11",
+            "art_ruanyfweekly_71df0181d35f",
+            "art_ruanyfweekly_28d7ae64b056"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-20",
+            "art_ruanyfweekly_d34c50d04a69",
+            "art_ruanyfweekly_68c4d14c3670",
+            "art_ruanyfweekly_506ed80e169e",
+            "art_ruanyfweekly_692ca223e8cc",
+            "art_ruanyfweekly_8e2ab12d1637",
+            "art_ruanyfweekly_b46a79c5adca",
+            "art_ruanyfweekly_3862abc26c65",
+            "art_ruanyfweekly_b0a8e38768c4",
+            "art_ruanyfweekly_79937e1418e5"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-20",
+            "art_ruanyfweekly_d34c50d04a69",
+            "art_ruanyfweekly_68c4d14c3670",
+            "art_ruanyfweekly_506ed80e169e",
+            "art_ruanyfweekly_692ca223e8cc"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q19",
+        "category": "LangChain",
+        "question": "LangChain 框架的核心抽象有哪些？",
+        "expected": [
+          "doc-23"
+        ],
+        "vector": {
+          "ids": [
+            "doc-23",
+            "doc-29",
+            "doc-2",
+            "doc-31",
+            "art_devto_cdc6131107f1",
+            "doc-19",
+            "art_githubawesome_5d411d15016a",
+            "doc-30",
+            "art_devto_182ed7b923f1",
+            "art_devto_1e2f47b142bd"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-23",
+            "doc-19",
+            "doc-2",
+            "art_ruanyfweekly_11c6ee794c64",
+            "doc-29",
+            "doc-31",
+            "art_ruanyfweekly_a097490f21d3",
+            "art_devto_cdc6131107f1",
+            "doc-18",
+            "art_ruanyfweekly_ca07cc0941d4"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-23",
+            "doc-19",
+            "doc-2",
+            "art_ruanyfweekly_11c6ee794c64",
+            "doc-29"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q20",
+        "category": "LangChain",
+        "question": "LangChain Chain 的几种编排模式分别用在什么场景？",
+        "expected": [
+          "doc-24"
+        ],
+        "vector": {
+          "ids": [
+            "doc-24",
+            "doc-31",
+            "doc-23",
+            "doc-19",
+            "art_devto_cdc6131107f1",
+            "art_devto_1e2f47b142bd",
+            "art_devto_182ed7b923f1",
+            "doc-2",
+            "doc-4",
+            "doc-30"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-19",
+            "doc-24",
+            "doc-31",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-23",
+            "art_ruanyfweekly_70f3c0acb272",
+            "art_ruanyfweekly_50d47257f548",
+            "art_devto_cdc6131107f1",
+            "art_ruanyf_1fe98eff7f26",
+            "art_devto_1e2f47b142bd"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.5
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-19",
+            "doc-24",
+            "doc-31",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-23"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.5
+          }
+        }
+      },
+      {
+        "id": "q21",
+        "category": "LangChain",
+        "question": "LangGraph 和普通 LangChain Chain 有什么区别？",
+        "expected": [
+          "doc-28"
+        ],
+        "vector": {
+          "ids": [
+            "art_devto_182ed7b923f1",
+            "doc-23",
+            "doc-19",
+            "art_devto_cdc6131107f1",
+            "doc-29",
+            "doc-31",
+            "art_devto_09eec7ba6dd2",
+            "art_githubawesome_5d411d15016a",
+            "doc-28",
+            "art_devto_0e2347b1305d"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0,
+            "mrr": 0.1111111111111111
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "art_devto_182ed7b923f1",
+            "doc-1",
+            "doc-23",
+            "doc-19",
+            "art_ruanyfweekly_8c5fc802145a",
+            "art_devto_cdc6131107f1",
+            "art_ruanyfweekly_79d0c681c046",
+            "doc-29",
+            "art_ruanyfweekly_076a89a282fa",
+            "doc-31"
+          ],
+          "m": {
+            "recallAt10": 0,
+            "precisionAt5": 0,
+            "mrr": 0
+          }
+        },
+        "full": {
+          "ids": [
+            "art_devto_182ed7b923f1",
+            "doc-1",
+            "doc-23",
+            "doc-19",
+            "art_ruanyfweekly_8c5fc802145a"
+          ],
+          "m": {
+            "recallAt10": 0,
+            "precisionAt5": 0,
+            "mrr": 0
+          }
+        }
+      },
+      {
+        "id": "q22",
+        "category": "LangChain",
+        "question": "LangSmith 怎么调试 LangChain 应用？",
+        "expected": [
+          "doc-29"
+        ],
+        "vector": {
+          "ids": [
+            "doc-29",
+            "doc-23",
+            "doc-31",
+            "art_devto_94e6872b45fd",
+            "art_devto_cdc6131107f1",
+            "doc-2",
+            "doc-19",
+            "art_devto_182ed7b923f1",
+            "art_devto_87e55d192d94",
+            "art_devto_caee05b00971"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-29",
+            "doc-2",
+            "art_devto_a82ed99305b6",
+            "doc-23",
+            "art_ruanyfweekly_9adf633130a9",
+            "doc-31",
+            "art_ruanyfweekly_84b0f41ce7d7",
+            "art_devto_94e6872b45fd",
+            "art_ruanyfweekly_d6b91acd58d8",
+            "art_devto_cdc6131107f1"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-29",
+            "doc-2",
+            "art_devto_a82ed99305b6",
+            "doc-23",
+            "art_ruanyfweekly_9adf633130a9"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q23",
+        "category": "LangChain",
+        "question": "LCEL 是什么？怎么用管道语法编排？",
+        "expected": [
+          "doc-30"
+        ],
+        "vector": {
+          "ids": [
+            "doc-30",
+            "doc-23",
+            "doc-3",
+            "doc-19",
+            "art_devto_1d141d2145f4",
+            "art_ruanyfweekly_70f3c0acb272",
+            "doc-39",
+            "art_devto_1e2f47b142bd",
+            "doc-2",
+            "art_githubawesome_6181694505bf"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-30",
+            "art_ruanyfweekly_dae56b6f155f",
+            "art_ruanyfweekly_8dc0010f1ad3",
+            "doc-23",
+            "art_ruanyfweekly_99f583a97803",
+            "doc-3",
+            "art_ruanyfweekly_f796c53ca130",
+            "doc-19",
+            "art_ruanyfweekly_4f2c6c9c5f33",
+            "art_devto_1d141d2145f4"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-30",
+            "art_ruanyfweekly_dae56b6f155f",
+            "art_ruanyfweekly_8dc0010f1ad3",
+            "doc-23",
+            "art_ruanyfweekly_99f583a97803"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q24",
+        "category": "LangChain",
+        "question": "LangChain Prompt Template 怎么使用？",
+        "expected": [
+          "doc-27"
+        ],
+        "vector": {
+          "ids": [
+            "doc-23",
+            "art_devto_1e2f47b142bd",
+            "doc-31",
+            "art_devto_6ca74db987bd",
+            "doc-27",
+            "art_devto_94e6872b45fd",
+            "doc-30",
+            "art_devto_cdc6131107f1",
+            "doc-29",
+            "art_devto_080fcfbb03f8"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.2
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-23",
+            "doc-27",
+            "doc-31",
+            "doc-19",
+            "art_devto_1e2f47b142bd",
+            "art_devto_4f2004390df1",
+            "art_devto_6ca74db987bd",
+            "art_ruanyfweekly_5e7558ec1733",
+            "art_ruanyfweekly_f796c53ca130",
+            "art_devto_94e6872b45fd"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.5
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-23",
+            "doc-27",
+            "doc-31",
+            "doc-19",
+            "art_devto_1e2f47b142bd"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.5
+          }
+        }
+      },
+      {
+        "id": "q25",
+        "category": "LangChain",
+        "question": "LangChain 生产环境部署有哪些最佳实践？",
+        "expected": [
+          "doc-31"
+        ],
+        "vector": {
+          "ids": [
+            "doc-31",
+            "doc-23",
+            "doc-2",
+            "art_devto_cdc6131107f1",
+            "doc-29",
+            "art_devto_94e6872b45fd",
+            "art_devto_1e2f47b142bd",
+            "doc-19",
+            "art_githubawesome_5d411d15016a",
+            "art_devto_87e55d192d94"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-31",
+            "doc-23",
+            "art_ruanyfweekly_aefd9adaea0f",
+            "doc-2",
+            "doc-40",
+            "art_devto_cdc6131107f1",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-29",
+            "art_ruanyfweekly_506ed80e169e",
+            "art_devto_94e6872b45fd"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-31",
+            "doc-23",
+            "art_ruanyfweekly_aefd9adaea0f",
+            "doc-2",
+            "doc-40"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q26",
+        "category": "LLM",
+        "question": "大模型的几个核心概念是什么？什么是参数、token、context？",
+        "expected": [
+          "doc-32"
+        ],
+        "vector": {
+          "ids": [
+            "doc-32",
+            "art_ruanyfweekly_07051fdd18e4",
+            "art_ruanyfweekly_ca07cc0941d4",
+            "art_devto_4ba8ac0d04e9",
+            "art_ruanyfweekly_997217091dfd",
+            "art_ruanyfweekly_00ca5238c56a",
+            "art_ruanyfweekly_3604ec03c430",
+            "art_devto_b1d944f068a0",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-38"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "art_ruanyfweekly_ca07cc0941d4",
+            "art_ruanyfweekly_997217091dfd",
+            "art_ruanyfweekly_9c051a8d746a",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-32",
+            "art_ruanyfweekly_f854f8eb8835",
+            "art_ruanyfweekly_07051fdd18e4",
+            "art_ruanyf_7ef2dc4375aa",
+            "art_devto_4ba8ac0d04e9",
+            "art_ruanyfweekly_00ca5238c56a"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.2
+          }
+        },
+        "full": {
+          "ids": [
+            "art_ruanyfweekly_ca07cc0941d4",
+            "art_ruanyfweekly_997217091dfd",
+            "art_ruanyfweekly_9c051a8d746a",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-32"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.2
+          }
+        }
+      },
+      {
+        "id": "q27",
+        "category": "LLM",
+        "question": "Prompt Engineering 有哪些常用技巧？",
+        "expected": [
+          "doc-33"
+        ],
+        "vector": {
+          "ids": [
+            "doc-33",
+            "art_ruanyfweekly_b27dbb84891a",
+            "art_ruanyfweekly_988e2b09989e",
+            "art_devto_455b50900a5e",
+            "doc-27",
+            "art_devto_4d6757814db9",
+            "art_ruanyfweekly_a3cea3dba715",
+            "art_ruanyf_ff9e2d233eb9",
+            "art_ruanyfweekly_98c57e558d6a",
+            "art_ruanyfweekly_680d27f0f469"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-33",
+            "art_ruanyfweekly_a3cea3dba715",
+            "art_ruanyfweekly_b27dbb84891a",
+            "art_ruanyfweekly_988e2b09989e",
+            "art_ruanyfweekly_e5ca22e1b5b8",
+            "art_devto_455b50900a5e",
+            "art_ruanyfweekly_a097490f21d3",
+            "doc-27",
+            "art_ruanyfweekly_a2c91de0efbc",
+            "art_devto_4d6757814db9"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-33",
+            "art_ruanyfweekly_a3cea3dba715",
+            "art_ruanyfweekly_b27dbb84891a",
+            "art_ruanyfweekly_988e2b09989e",
+            "art_ruanyfweekly_e5ca22e1b5b8"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      },
+      {
+        "id": "q28",
+        "category": "LLM",
+        "question": "大模型 token 限制超了怎么办？",
+        "expected": [
+          "doc-34",
+          "doc-37"
+        ],
+        "vector": {
+          "ids": [
+            "doc-34",
+            "art_ruanyfweekly_07051fdd18e4",
+            "art_ruanyfweekly_997217091dfd",
+            "doc-32",
+            "doc-40",
+            "art_ruanyfweekly_3604ec03c430",
+            "art_ruanyfweekly_00ca5238c56a",
+            "art_ruanyf_6aabbfb56f55",
+            "art_devto_392e891e227f",
+            "art_ruanyfweekly_9b821acf6d95"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "art_ruanyfweekly_3604ec03c430",
+            "art_ruanyfweekly_7abff3df87c9",
+            "art_ruanyf_179cfec4663b",
+            "doc-34",
+            "art_ruanyfweekly_07051fdd18e4",
+            "art_ruanyfweekly_996a798134bf",
+            "art_ruanyfweekly_997217091dfd",
+            "art_ruanyfweekly_038a130bc8f9",
+            "doc-32",
+            "art_ruanyfweekly_90d4afacccbe"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 0.25
+          }
+        },
+        "full": {
+          "ids": [
+            "art_ruanyfweekly_3604ec03c430",
+            "art_ruanyfweekly_7abff3df87c9",
+            "art_ruanyf_179cfec4663b",
+            "doc-34",
+            "art_ruanyfweekly_07051fdd18e4"
+          ],
+          "m": {
+            "recallAt10": 0.5,
+            "precisionAt5": 0.2,
+            "mrr": 0.25
+          }
+        }
+      },
+      {
+        "id": "q29",
+        "category": "LLM",
+        "question": "大模型为什么会幻觉？怎么缓解？",
+        "expected": [
+          "doc-35"
+        ],
+        "vector": {
+          "ids": [
+            "doc-35",
+            "art_ruanyfweekly_bd25b46306cd",
+            "art_ruanyfweekly_3604ec03c430",
+            "art_ruanyfweekly_88869f27a22e",
+            "art_ruanyfweekly_07051fdd18e4"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "art_ruanyfweekly_bd25b46306cd",
+            "art_ruanyfweekly_88869f27a22e",
+            "art_ruanyfweekly_3604ec03c430",
+            "doc-35",
+            "art_ruanyfweekly_008cc7f7d558",
+            "art_ruanyfweekly_02cf496cd95d",
+            "art_ruanyfweekly_07051fdd18e4",
+            "art_ruanyfweekly_b8be157c2a23",
+            "art_ruanyfweekly_997217091dfd",
+            "art_ruanyfweekly_6c01172a6d40"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.25
+          }
+        },
+        "full": {
+          "ids": [
+            "art_ruanyfweekly_bd25b46306cd",
+            "art_ruanyfweekly_88869f27a22e",
+            "art_ruanyfweekly_3604ec03c430",
+            "doc-35",
+            "art_ruanyfweekly_008cc7f7d558"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 0.25
+          }
+        }
+      },
+      {
+        "id": "q30",
+        "category": "LLM",
+        "question": "什么时候用微调，什么时候用 RAG？",
+        "expected": [
+          "doc-36"
+        ],
+        "vector": {
+          "ids": [
+            "doc-36",
+            "doc-22",
+            "doc-11",
+            "doc-21",
+            "art_devto_ade00d2920bb",
+            "art_devto_9d73553ae6b3",
+            "art_devto_d967d5a9e0df",
+            "doc-9",
+            "art_devto_0c28d7b9609b",
+            "art_devto_5d674d93edff"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "hybrid": {
+          "ids": [
+            "doc-36",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-22",
+            "art_ruanyfweekly_9c051a8d746a",
+            "doc-11",
+            "art_ruanyfweekly_e5ca22e1b5b8",
+            "doc-21",
+            "art_ruanyfweekly_5ba97559ae58",
+            "art_devto_ade00d2920bb",
+            "art_ruanyfweekly_a2c91de0efbc"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        },
+        "full": {
+          "ids": [
+            "doc-36",
+            "art_ruanyfweekly_008cc7f7d558",
+            "doc-22",
+            "art_ruanyfweekly_9c051a8d746a",
+            "doc-11"
+          ],
+          "m": {
+            "recallAt10": 1,
+            "precisionAt5": 0.2,
+            "mrr": 1
+          }
+        }
+      }
+    ]
+  },
+  "phase2": {
+    "summary": {
+      "noRagFaithfulness": 0.25436507936507935,
+      "ragFaithfulness": 0.836111111111111,
+      "noRagHallucination": 0.7456349206349207,
+      "ragHallucination": 0.16388888888888897
+    },
+    "rows": [
+      {
+        "id": "q01",
+        "question": "AI Agent 和普通 LLM 对话有什么本质区别？",
+        "noRagFaith": 0.6428571428571429,
+        "ragFaith": 1
+      },
+      {
+        "id": "q02",
+        "question": "Function Calling 是什么？它的完整工作流程是怎样的？",
+        "noRagFaith": 0.4166666666666667,
+        "ragFaith": 0.8333333333333334
+      },
+      {
+        "id": "q03",
+        "question": "ReAct 推理模式的工作机制是什么？",
+        "noRagFaith": 0.3333333333333333,
+        "ragFaith": 1
+      },
+      {
+        "id": "q04",
+        "question": "多 Agent 系统是如何协作的？",
+        "noRagFaith": 0.125,
+        "ragFaith": 0.7777777777777778
+      },
+      {
+        "id": "q05",
+        "question": "Agent 的记忆机制有哪些类型？怎么实现？",
+        "noRagFaith": 0.125,
+        "ragFaith": 0.75
+      },
+      {
+        "id": "q06",
+        "question": "Agent 的规划能力（Planning）是如何实现的？",
+        "noRagFaith": 0,
+        "ragFaith": 0.5
+      },
+      {
+        "id": "q07",
+        "question": "LangChain 里有哪几种 Agent 类型？它们有什么区别？",
+        "noRagFaith": 0.3333333333333333,
+        "ragFaith": 0.5
+      },
+      {
+        "id": "q08",
+        "question": "Agent 在生产环境中有哪些实战应用场景？",
+        "noRagFaith": 0,
+        "ragFaith": 1
+      },
+      {
+        "id": "q09",
+        "question": "RAG 的核心原理是什么？为什么需要它？",
+        "noRagFaith": 0.3888888888888889,
+        "ragFaith": 1
+      },
+      {
+        "id": "q10",
+        "question": "RAG 检索的完整流程包括哪些步骤？",
+        "noRagFaith": 0.17857142857142858,
+        "ragFaith": 1
+      }
+    ]
+  }
+}

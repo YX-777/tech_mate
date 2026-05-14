@@ -17,7 +17,7 @@
  */
 
 export * from "./types";
-export { DEFAULT_POLICIES } from "./policies";
+export { DEFAULT_POLICIES, SSRF_INTERNAL_PATTERN } from "./policies";
 export { checkInput } from "./input-guard";
 export type { InputGuardOptions } from "./input-guard";
 export { checkToolInvocation, listGuardedTools } from "./tool-guard";

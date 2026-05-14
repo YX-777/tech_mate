@@ -9,6 +9,9 @@
 
 import { logger } from "@tech-mate/core";
 import { StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
+import { SqliteSaver } from "@langchain/langgraph/checkpoint/sqlite";
+import * as fs from "fs";
+import * as path from "path";
 import type { GraphStateType } from "./state";
 import { graphStateChannels, createInitialState } from "./state";
 import {
@@ -26,6 +29,35 @@ import {
   createQuickReplies,
 } from "./nodes";
 import { AIMessage } from "@langchain/core/messages";
+
+/**
+ * 创建 LangGraph checkpoint saver。
+ *
+ * 默认走 SQLite 落盘（真持久化），目录可由 env LANGGRAPH_CHECKPOINT_PATH 指定。
+ * 缺省路径跟 Prisma 同目录（packages/web/data/）便于一起备份。
+ *
+ * 失败兜底：better-sqlite3 native binding 跑不起来时（极少见，主要发生在
+ * cross-arch 构建产物未重编译的场景）回落到 MemorySaver，保证 Agent 仍可启动。
+ */
+function createCheckpointer() {
+  try {
+    const dbPath = process.env.LANGGRAPH_CHECKPOINT_PATH
+      || path.resolve(process.cwd(), "data/langgraph-checkpoints.db");
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const saver = SqliteSaver.fromConnString(dbPath);
+    // 触发 setup() 建表（SqliteSaver 把 setup 设为 lazy，但流式路径不会主动 invoke
+    // app.invoke()，导致 checkpoints 表迟迟不创建）—— 这里发一次 getTuple 强制建表
+    void saver.getTuple({ configurable: { thread_id: "_init" } }).catch(() => {});
+    logger.info(`[Checkpoint] SqliteSaver enabled at ${dbPath}`);
+    return saver;
+  } catch (err) {
+    logger.warn(`[Checkpoint] SqliteSaver init failed, falling back to MemorySaver: ${err instanceof Error ? err.message : String(err)}`);
+    return new MemorySaver();
+  }
+}
 import { parseTaskPlanFromText } from "./task-plan";
 import { SYSTEM_PROMPTS } from "../prompts/system-prompts";
 import { TASK_PROMPTS } from "../prompts/task-prompts";
@@ -149,8 +181,13 @@ export function createAgentGraph() {
   // 固定边：generate_response → END
   workflow.addEdge("generate_response" as any, END);
 
-  // ========== 编译 Graph（可选：添加持久化）==========
-  const checkpointer = new MemorySaver();
+  // ========== 编译 Graph：持久化 checkpoint ==========
+  // SqliteSaver 落盘每个 thread (conversation_id) 的 state 快照，进程重启不丢；
+  // 旧实现是 MemorySaver（仅内存），不算真持久化
+  //
+  // env LANGGRAPH_CHECKPOINT_PATH 可覆盖；缺省走 packages/web/data 下，
+  // 跟 Prisma SQLite 同目录便于一起备份
+  const checkpointer = createCheckpointer();
   const app = workflow.compile({ checkpointer });
 
   logger.info("Agent graph created successfully with StateGraph");
@@ -181,6 +218,22 @@ export function createAgentGraph() {
     processStateStream: async function* (
       state: GraphStateType
     ): AsyncGenerator<StreamChunk, GraphStateType, unknown> {
+      // ========== LangGraph 持久化：每次 turn 写一条 checkpoint ==========
+      // 流式路径手动 dispatch 节点，没走 app.invoke 的自动 checkpoint 链；
+      // 这里在 turn 起点显式 updateState 一次，让 SqliteSaver 把当前 thread
+      // 的 state 落盘。thread_id 用 userId（GraphStateType 没暴露 conversationId
+      // 字段；如果以后改了 state 形状，这里可以切到更细的 thread 粒度）。
+      const threadId = `user-${state.userId}`;
+      try {
+        await app.updateState(
+          { configurable: { thread_id: threadId } },
+          state
+        );
+      } catch (err) {
+        // SqliteSaver 写入失败不应该 break chat —— 仅记录
+        logger.warn(`[Checkpoint] updateState failed (thread=${threadId}): ${err instanceof Error ? err.message : String(err)}`);
+      }
+
       // ========== Step: 意图识别 ==========
       const intentT0 = Date.now();
       yield {

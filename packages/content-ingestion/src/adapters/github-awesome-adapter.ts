@@ -23,12 +23,43 @@ interface AwesomeRepo {
 }
 
 const REPOS: AwesomeRepo[] = [
+  // —— 前端框架 ——
   { repo: "enaqx/awesome-react", branch: "master", readmePath: "README.md", category: "frontend", hint: "React 生态" },
   { repo: "vuejs/awesome-vue", branch: "master", readmePath: "README.md", category: "frontend", hint: "Vue 生态" },
+  { repo: "PatrickJS/awesome-angular", branch: "master", readmePath: "README.md", category: "frontend", hint: "Angular 生态" },
+  { repo: "agarrharr/awesome-static-website-services", branch: "master", readmePath: "readme.md", category: "frontend", hint: "静态站点服务" },
+  // —— 工程化 / 工具 ——
+  { repo: "sorrycc/awesome-javascript", branch: "master", readmePath: "README.md", category: "frontend", hint: "JS 经典" },
+  { repo: "dypsilon/frontend-dev-bookmarks", branch: "master", readmePath: "readme.md", category: "frontend", hint: "前端工程师收藏夹" },
+  { repo: "sotayamashita/awesome-css", branch: "master", readmePath: "readme.md", category: "frontend", hint: "CSS 资源" },
+  { repo: "willianjusten/awesome-svg", branch: "master", readmePath: "README.md", category: "frontend", hint: "SVG 资源" },
+  // —— 后端 / 全栈 ——
   { repo: "sindresorhus/awesome-nodejs", branch: "main", readmePath: "readme.md", category: "backend", hint: "Node.js 生态" },
+  { repo: "nikitavoloboev/awesome-nodejs", branch: "main", readmePath: "readme.md", category: "backend", hint: "Node.js 备选" },
+  { repo: "veggiemonk/awesome-docker", branch: "master", readmePath: "README.md", category: "backend", hint: "Docker 生态" },
+  // —— AI / Agent / LLM ——
   { repo: "e2b-dev/awesome-ai-agents", branch: "main", readmePath: "README.md", category: "ai", hint: "AI Agents" },
-  { repo: "hannibal046/Awesome-LLM", branch: "main", readmePath: "README.md", category: "ai", hint: "LLM 资源" },
-  { repo: "Hannibal046/Awesome-LLM", branch: "main", readmePath: "README.md", category: "ai", hint: "LLM 资源（大小写兜底）" },
+  { repo: "Hannibal046/Awesome-LLM", branch: "main", readmePath: "README.md", category: "ai", hint: "LLM 资源" },
+  { repo: "EthicalML/awesome-production-machine-learning", branch: "master", readmePath: "README.md", category: "ai", hint: "生产 ML" },
+  { repo: "kyrolabs/awesome-langchain", branch: "main", readmePath: "README.md", category: "ai", hint: "LangChain 生态" },
+  { repo: "kasperjunge/awesome-rag", branch: "main", readmePath: "README.md", category: "ai", hint: "RAG 资源" },
+  { repo: "f/awesome-chatgpt-prompts", branch: "main", readmePath: "README.md", category: "ai", hint: "Prompt 工程" },
+  // —— TypeScript & 工程化 ——
+  { repo: "dzharii/awesome-typescript", branch: "main", readmePath: "README.md", category: "frontend", hint: "TS 资源" },
+  { repo: "jaredpalmer/awesome-react-typescript", branch: "main", readmePath: "README.md", category: "frontend", hint: "React+TS" },
+  // —— Round-2 补量（更多主题）——
+  { repo: "ramnes/awesome-mongodb", branch: "master", readmePath: "README.md", category: "backend", hint: "MongoDB 资源" },
+  { repo: "agarrharr/awesome-cli-apps", branch: "master", readmePath: "readme.md", category: "backend", hint: "CLI 工具" },
+  { repo: "iAJTin/awesome-clean-code", branch: "main", readmePath: "README.md", category: "general", hint: "整洁代码" },
+  { repo: "sotayamashita/awesome-package-manager", branch: "master", readmePath: "readme.md", category: "frontend", hint: "包管理器" },
+  { repo: "phuocng/css-layout", branch: "master", readmePath: "README.md", category: "frontend", hint: "CSS 布局技巧" },
+  { repo: "Awesome-Microservices/awesome-microservices", branch: "master", readmePath: "readme.md", category: "backend", hint: "微服务" },
+  { repo: "chentsulin/awesome-graphql", branch: "master", readmePath: "README.md", category: "backend", hint: "GraphQL 生态" },
+  { repo: "ramitsurana/awesome-kubernetes", branch: "master", readmePath: "README.md", category: "backend", hint: "K8s 资源" },
+  { repo: "guardrail-ml/awesome-llm-security", branch: "main", readmePath: "README.md", category: "ai", hint: "LLM 安全" },
+  { repo: "tensorchord/Awesome-LLMOps", branch: "main", readmePath: "README.md", category: "ai", hint: "LLMOps" },
+  { repo: "tensorflow/tensor2tensor", branch: "master", readmePath: "README.md", category: "ai", hint: "Tensor2Tensor 文档" },
+  { repo: "awesome-foss/awesome-sysadmin", branch: "master", readmePath: "README.md", category: "backend", hint: "运维工具" },
 ];
 
 async function fetchText(url: string, timeoutMs = 20000): Promise<string | null> {

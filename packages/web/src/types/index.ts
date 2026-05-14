@@ -18,17 +18,37 @@ export interface ExecutionStep {
   detail?: string;
 }
 
+/**
+ * 单层防护状态 —— 统一三（四）态。
+ * 设计原则：N/A 必须诚实标 skip，**绝不伪装成 pass**（这是项目核心诚实叙事，
+ * 早期 L3 存在"伪装通过"问题，后给 L3 打了 applied 补丁，现收编为统一模型）。
+ *   pass  = 本层确实运行了且通过
+ *   block = 本层确实运行了且**拦截了本次请求**（决定性，徽章据此做标题）
+ *   warn  = 本层运行了，标了告警但不阻断（L3 异步观测层）
+ *   skip  = 本场景本层未运行 / 无对象可校验（灰显，绝不计为通过）
+ */
+export type GuardLayerState = "pass" | "block" | "warn" | "skip";
+
+export interface GuardLayerResult {
+  state: GuardLayerState;
+  detail?: string;                 // 一句话诚实说明
+  hits?: number;
+  maxRisk?: string;
+  // L2 专属：被拦截的工具调用明细
+  blocks?: Array<{
+    tool: string;
+    maxRisk: string;
+    hits: Array<{ ruleId: string; reason: string; risk: string; matchedText?: string }>;
+  }>;
+  // L3 专属
+  similarity?: number;
+  factCoverage?: number;
+}
+
 export interface GuardRailSummary {
-  input: { passed: boolean; hits: number; maxRisk: string };
-  tool?: {
-    count: number;
-    blocks: Array<{
-      tool: string;
-      maxRisk: string;
-      hits: Array<{ ruleId: string; reason: string; risk: string; matchedText?: string }>;
-    }>;
-  };
-  output: { passed: boolean; hits: number; similarity?: number; factCoverage?: number };
+  input: GuardLayerResult;
+  tool: GuardLayerResult;
+  output: GuardLayerResult;
 }
 
 export interface GuardRailBlockInfo {

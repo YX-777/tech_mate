@@ -31,6 +31,17 @@ export interface ArchiveResult {
   initialWeight: number;
 }
 
+/** 检索命中一次的权重强化量（小步长，多次命中渐进逼近 1.0） */
+export const RETRIEVAL_BOOST = 0.05;
+
+/**
+ * 权重强化纯函数 —— **单一来源**，封顶 1.0。
+ * 追踪评分的核心数学：被召回越多 → 权重越高（封顶），证明越有用越不易遗忘。
+ */
+export function nextWeight(current: number | undefined, boost: number, cap = 1.0): number {
+  return Math.min((current ?? 0.5) + boost, cap);
+}
+
 export class LongMemoryArchiver {
   private COLLECTION_NAME = "long_term_memory";
 
@@ -152,9 +163,9 @@ export class LongMemoryArchiver {
       return;
     }
 
-    // 更新权重（上限 1.0）
+    // 更新权重（上限 1.0，复用单一来源 nextWeight）
     const currentWeight = existing.metadata?.weight || 0.5;
-    const newWeight = Math.min(currentWeight + boost, 1.0);
+    const newWeight = nextWeight(currentWeight, boost);
 
     // 更新 metadata
     await vectorService.updateEmbedding(
@@ -170,6 +181,22 @@ export class LongMemoryArchiver {
     );
 
     console.log(`  - 权重更新: ${currentWeight.toFixed(2)} → ${newWeight.toFixed(2)}`);
+  }
+
+  /**
+   * 批量强化检索命中的记忆（追踪评分入口）。
+   * 串行逐条 best-effort：单条失败不影响其余，整体由 search() 以
+   * 非阻塞方式调用，不拖慢检索返回。
+   */
+  private async reinforceHits(ids: string[]): Promise<void> {
+    for (const id of ids) {
+      if (!id) continue;
+      try {
+        await this.reinforceWeight(id, RETRIEVAL_BOOST);
+      } catch (e) {
+        console.warn(`[LongMemory] 命中强化失败 ${id}:`, e);
+      }
+    }
   }
 
   /**
@@ -202,7 +229,7 @@ export class LongMemoryArchiver {
         { user_id: userId }
       );
 
-      // 权重加权排序
+      // 权重加权排序（内部保留 id 供命中强化用）
       const weightedResults = results.map((r: any) => {
         const similarity = 1 - (r.distance || 0);
         const weight = r.metadata?.weight || 0.5;
@@ -211,14 +238,23 @@ export class LongMemoryArchiver {
         console.log(`  - ${r.id}: 相似度=${similarity.toFixed(2)}, 权重=${weight.toFixed(2)}, 最终=${finalScore.toFixed(2)}`);
 
         return {
+          id: r.id as string,
           content: r.content || r.metadata?.content || "",
           score: finalScore,
           metadata: r.metadata as LongMemoryMetadata,
         };
       }).sort((a, b) => b.score - a.score);
 
-      // 返回 topK
-      return weightedResults.slice(0, topK);
+      const topResults = weightedResults.slice(0, topK);
+
+      // ===== 追踪评分：被检索命中 = 证明有用 → 强化权重 =====
+      // 异步 best-effort，**不 await、不阻塞检索返回**（memory.long 是延迟瓶颈，
+      // 强化是写后台不能拖慢主链路）；失败静默吞掉，绝不影响本次回答。
+      // 复用死代码 reinforceWeight + 单一来源 nextWeight，让"追踪评分"真正成立。
+      this.reinforceHits(topResults.map((r) => r.id)).catch(() => {});
+
+      // 返回 topK（去掉内部 id，对外形状不变）
+      return topResults.map(({ id, ...rest }) => rest);
     } catch (error) {
       // ChromaDB 不可用时返回空数组，不阻断主流程
       console.error(`[LongMemory] 长期记忆获取失败:`, error);
